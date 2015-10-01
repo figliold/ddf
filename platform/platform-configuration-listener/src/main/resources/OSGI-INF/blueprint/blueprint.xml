@@ -19,7 +19,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
 
-    <bean id="configurationHandler" class="org.codice.ddf.configuration.ConfigurationHandler">
+    <bean id="configurationHandler" class="org.codice.ddf.configuration.listener.ConfigurationHandler">
         <argument ref="blueprintBundleContext" />
         <argument value="${ddf.home}" />
     </bean>
