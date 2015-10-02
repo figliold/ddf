@@ -182,11 +182,17 @@ public class ConfigurationHandler implements ConfigurationListener {
     }
 
     private void handleCmDeletedEvent(String pid, String file) {
-        LOGGER.debug("Deleting configuration file [{}] for bundle with pid [{}].", file, pid);
-        try {
-            fileHandler.delete(file);
-        } catch (IOException e) {
-            LOGGER.error("Unable to delete configuration file [{}].", file, e);
+        LOGGER.debug("Attempting to delete configuration file [{}] for bundle with pid [{}}", file, pid);
+        if (fileHandler.exists(file)) {
+            LOGGER.debug("Deleting configuration file [{}] for bundle with pid [{}].", file, pid);
+            try {
+
+                fileHandler.delete(file);
+            } catch (IOException e) {
+                LOGGER.error("Unable to delete configuration file [{}].", file, e);
+            }
+        } else {
+            LOGGER.debug("Configuration file [{}] does not exist.", file);
         }
     }
 
