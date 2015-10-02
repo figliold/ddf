@@ -161,7 +161,7 @@ public class ConfigurationHandler implements ConfigurationListener {
         ConfigurationAdmin configAdmin = bundleContext.getService(configAdminServiceReference);
         Configuration configuration = null;
         try {
-            configuration = configAdmin.getConfiguration(pid);
+            configuration = configAdmin.getConfiguration(pid, null);
         } catch (IOException e) {
             LOGGER.error("Unable to get the configuration for pid [{}] from ConfigurationAdmin", pid, e);
         }
