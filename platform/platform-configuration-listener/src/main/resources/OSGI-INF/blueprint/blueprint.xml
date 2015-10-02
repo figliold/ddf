@@ -17,13 +17,14 @@
 
     <ext:property-placeholder />
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+    <bean id="felixFileHandler" class="org.codice.ddf.configuration.listener.FelixFileHandler" scope="singleton" />
 
     <bean id="configurationHandler" class="org.codice.ddf.configuration.listener.ConfigurationHandler">
         <argument ref="blueprintBundleContext" />
+        <argument ref="felixFileHandler" />
         <argument value="${ddf.home}" />
     </bean>
 
-    <service ref="configurationHandler" interface="org.osgi.service.cm.ConfigurationListener"></service>
+    <service ref="configurationHandler" interface="org.osgi.service.cm.ConfigurationListener" />
 
 </blueprint>
