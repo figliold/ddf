@@ -42,11 +42,11 @@ public class FelixFileHandler extends AbstractFileHandler {
     @Override
     public Dictionary<String, Object> read(String file) throws IOException {
         Dictionary<String, Object> properties = null;
-        writeLock.lock();
+        readLock.lock();
         try (InputStream inputStream = new FileInputStream(file)) {
             properties = org.apache.felix.cm.file.ConfigurationHandler.read(inputStream);
         } finally {
-            writeLock.unlock();
+            readLock.unlock();
         }
 
         return properties;
@@ -54,11 +54,11 @@ public class FelixFileHandler extends AbstractFileHandler {
 
     @Override
     public void write(String file, Dictionary<String, Object> properties) throws IOException {
-        readLock.lock();
+        writeLock.lock();
         try (OutputStream outputStream = new FileOutputStream(file)) {
             org.apache.felix.cm.file.ConfigurationHandler.write(outputStream, properties);
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
     
