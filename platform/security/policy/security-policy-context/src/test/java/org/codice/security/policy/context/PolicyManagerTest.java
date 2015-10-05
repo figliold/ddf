@@ -13,6 +13,7 @@
  */
 package org.codice.security.policy.context;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class PolicyManagerTest {
         manager.setContextPolicy("/aaa", new Policy("/aaa", null, null, null));
         manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, null, null));
         manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, null, null));
-        manager.setWhiteListContexts("/foo");
+        String[] whiteListContexts = new String[] {"/foo"};
+        manager.setWhiteListContexts(Arrays.asList(whiteListContexts));
     }
 
     @Test
@@ -105,43 +107,28 @@ public class PolicyManagerTest {
     @Test
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<>();
+        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC", "/foo=BASIC",
+                "/blah=ANON", "/bleh=ANON", "/unprotected=", "/unprotected2="};
+        String[] requiredAttributes = new String[] {"/={}", "/blah=", "/search={role=user;control=foo|bar}",
+                "/admin={role=admin|supervisor}"};
+
         properties.put("authenticationTypes",
-                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
+                authTypes);
         properties.put("requiredAttributes",
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+                requiredAttributes);
         manager.setPolicies(properties);
-        testAllPolicies();
-    }
-
-    @Test
-    public void testMangledConfiguration() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("authenticationTypes", new String[] {
-                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON",
-                "/unprotected=,/unprotected2=", "/bleh=ANON"});
-        properties.put("requiredAttributes",
-                new String[] {"/={},/blah=,/search={role=user;control=foo|bar}",
-                        "/admin={role=admin|supervisor}"});
-        manager.setPolicies(properties);
-        testAllPolicies();
-    }
-
-    @Test
-    public void testConfigureAfterSettingIndividualPropertiesAsStrings() {
-        manager.setAuthenticationTypes(
-                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
-        manager.setRequiredAttributes(
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
-        manager.configure();
         testAllPolicies();
     }
 
     @Test
     public void testSetPropertiesIgnoresNullMap() {
+        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC",
+                "/foo=BASIC", "/blah=ANON", "/unprotected=", "/unprotected2=", "/bleh=ANON"};
+        String[] requiredAttributes = new String[] {"/={}", "/blah=", "/search={role=user;control=foo|bar}", "/admin={role=admin|supervisor}"};
         manager.setAuthenticationTypes(
-                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
+                Arrays.asList(authTypes));
         manager.setRequiredAttributes(
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+                Arrays.asList(requiredAttributes));
         manager.configure();
         manager.setPolicies(null);
         testAllPolicies();
