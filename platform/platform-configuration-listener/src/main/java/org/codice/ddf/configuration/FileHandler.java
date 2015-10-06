@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.configuration.listener;
+package org.codice.ddf.configuration;
 
 import java.io.IOException;
 import java.util.Dictionary;
@@ -19,16 +19,10 @@ import java.util.List;
 
 public interface FileHandler {
     
-    public Dictionary<String, Object> read(String file) throws IOException;
+    public Dictionary<String, Object> read(String file) throws ConfigurationFileException;
     
-    public void write(String file, Dictionary<String, Object> properties) throws IOException;
+    public void write(String file, Dictionary<String, Object> properties) throws ConfigurationFileException;
     
-    public void delete(String file) throws IOException;
-    
-    public boolean exists(String file);
-    
-    public List<String> listFiles(String directory) throws IOException;
-    
-    public String getFileNameForPid(String pid);
+    public void delete(String file) throws ConfigurationFileException;
 
 }

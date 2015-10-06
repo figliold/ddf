@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.configuration.watcher;
+package org.codice.ddf.configuration.listener.file;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -29,14 +29,14 @@ import java.util.Dictionary;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.codice.ddf.configuration.listener.FileHandler;
+import org.codice.ddf.configuration.FileHandler;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurationObserver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationObserver.class);
+public class ConfigurationFileListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileListener.class);
 
     private final WatchService watchService;
 
@@ -50,7 +50,7 @@ public class ConfigurationObserver {
 
     private final String fileExtension;
 
-    public ConfigurationObserver(String configurationDirectory, WatchService watchService,
+    public ConfigurationFileListener(String configurationDirectory, WatchService watchService,
             ExecutorService watchThread, FileHandler fileHandler, ConfigurationAdmin configAdmin,
             String fileExtension) throws IOException {
         this.configurationDirectory = Paths.get(configurationDirectory);
@@ -63,7 +63,7 @@ public class ConfigurationObserver {
                 .register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         LOGGER.debug(
                 "Configuration directory for [{}] is [{}].  Files with an extension of [{}] will be observed.",
-                ConfigurationObserver.class.getName(), configurationDirectory, fileExtension);
+                ConfigurationFileListener.class.getName(), configurationDirectory, fileExtension);
     }
 
     /**
@@ -109,12 +109,7 @@ public class ConfigurationObserver {
 
     private void updateConfig(File file, String pid) {
         Dictionary<String, Object> props;
-        try {
-            props = fileHandler.read(file.getAbsolutePath());
-        } catch (IOException ex) {
-            LOGGER.error("[{}] file could not be read.", file.getAbsolutePath(), ex);
-            return;
-        }
+        props = fileHandler.read(file.getAbsolutePath());
         LOGGER.debug("Updating [{}] configuration based off [{}].", pid, file.getName());
         try {
             Configuration configuration = configAdmin.getConfiguration(pid, null);
@@ -163,14 +158,18 @@ public class ConfigurationObserver {
                         // I tried to use event.context().toAbsolutePath for pathToFile, but it gave the wrong path (it was missing the etc dir)
                         String pathToFile = configurationDirectory + File.separator + filename;
                         String pid = filename.substring(0, filename.lastIndexOf("."));
-                        switch (kind) {
-                        case "ENTRY_CREATE":
-                        case "ENTRY_MODIFY":
-                            updateConfig(new File(pathToFile), pid);
-                            break;
-                        case "ENTRY_DELETE":
-                            deleteConfig(pid);
-                            break;
+                        try {
+                            switch (kind) {
+                            case "ENTRY_CREATE":
+                            case "ENTRY_MODIFY":
+                                updateConfig(new File(pathToFile), pid);
+                                break;
+                            case "ENTRY_DELETE":
+                                deleteConfig(pid);
+                                break;
+                            }
+                        } catch (RuntimeException e) {
+                            // TODO
                         }
                     }
                     // reset key, shutdown watcher if directory no able to be observed (possibly deleted, who knows)

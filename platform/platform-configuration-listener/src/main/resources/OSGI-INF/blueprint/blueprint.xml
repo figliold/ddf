@@ -20,9 +20,9 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="felixFileHandler" class="org.codice.ddf.configuration.listener.FelixFileHandler" scope="singleton"/>
+    <bean id="felixFileHandler" class="org.codice.ddf.configuration.listener.admin.FelixFileHandler" scope="singleton"/>
 
-    <bean id="configurationHandler" class="org.codice.ddf.configuration.listener.ConfigurationHandler">
+    <bean id="configurationHandler" class="org.codice.ddf.configuration.listener.admin.ConfigurationAdminListener">
         <argument ref="blueprintBundleContext"/>
         <argument ref="felixFileHandler"/>
         <argument value="${ddf.home}"/>
@@ -37,7 +37,7 @@
     <bean id="configurationWatchService" factory-ref="defaultFileSystem" factory-method="newWatchService">
     </bean>
 
-    <bean id="configurationObserver" class="org.codice.ddf.configuration.watcher.ConfigurationObserver"
+    <bean id="configurationObserver" class="org.codice.ddf.configuration.listener.file.ConfigurationFileListener"
           init-method="init" destroy-method="destroy">
         <argument value="${ddf.home}/etc"/>
         <argument ref="configurationWatchService"/>
