@@ -75,7 +75,9 @@ public class ConfigurationFileDirectory implements ChangeListener {
 
         this.directoryStream = directoryStream;
         this.processedDirectory = processedDirectory;
+        LOGGER.debug("Processed Directory: [{}]", this.processedDirectory);
         this.failedDirectory = failedDirectory;
+        LOGGER.debug("Failed Directory: [{}]", this.failedDirectory);
         this.configurationFileFactory = configurationFileFactory;
         this.poller = poller;
     }
