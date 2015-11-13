@@ -18,9 +18,9 @@
     <ext:property-placeholder>
         <ext:default-properties>
             <ext:property name="configFileExtension" value=".config" />
-            <ext:property name="configFileDirectory" value="${ddf.home}${file.separator}etc" />
-            <ext:property name="processedDirectory" value="${ddf.home}${file.separator}etc${file.separator}processed" />
-            <ext:property name="failedDirectory" value="${ddf.home}${file.separator}etc${file.separator}failed" />
+            <ext:property name="configFileDirectory" value="${ddf.home}/etc" />
+            <ext:property name="processedDirectory" value="${ddf.home}/etc/processed" />
+            <ext:property name="failedDirectory" value="${ddf.home}/etc/failed" />
         </ext:default-properties>
     </ext:property-placeholder>
 
@@ -42,19 +42,31 @@
         class="org.codice.ddf.configuration.store.FelixPersistenceStrategy">
     </bean>
 
+    <bean id="configDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${configFileDirectory}" />
+    </bean>
+
     <bean id="configDirectoryPath" class="java.nio.file.Paths"
         factory-method="get">
-        <argument value="file:///${configFileDirectory}" />
+        <argument ref="configDirectoryPathUri" />
+    </bean>
+
+    <bean id="processedDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${processedDirectory}" />
     </bean>
 
     <bean id="processedDirectoryPath" class="java.nio.file.Paths"
         factory-method="get">
-        <argument value="file:///${processedDirectory}" />
+        <argument ref="processedDirectoryPathUri" />
+    </bean>
+
+    <bean id="failedDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${failedDirectory}" />
     </bean>
 
     <bean id="failedDirectoryPath" class="java.nio.file.Paths"
         factory-method="get">
-        <argument value="file:///${failedDirectory}" />
+        <argument ref="failedDirectoryPathUri" />
     </bean>
 
     <bean id="configurationFileFactory"
