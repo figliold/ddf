@@ -96,7 +96,20 @@
         <argument value="${configFileExtension}"/>
     </bean>
 
+    <bean id="systemConfigurationMigrator"
+        class="org.codice.ddf.configuration.store.SystemConfigurationMigrator">
+    </bean>
+
+    <bean id="configMigrationManager"
+        class="org.codice.ddf.configuration.store.ConfigurationMigrationManager">
+        <argument ref="configurationFileDirectory" />
+        <argument ref="systemConfigurationMigrator" />
+    </bean>
+
     <service id="configurationFileDirectoryService" ref="configurationFileDirectory"
+        auto-export="interfaces"/>
+
+    <service id="configurationMigrationManager" ref="configMigrationManager"
         auto-export="interfaces"/>
 
 </blueprint>
