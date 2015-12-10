@@ -22,7 +22,6 @@
             <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
             <ext:property name="processedDirectory" value="${ddf.home}/etc/processed"/>
             <ext:property name="failedDirectory" value="${ddf.home}/etc/failed"/>
-            <ext:property name="exportedDirectory" value="${ddf.home}/etc/exported"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
@@ -58,11 +57,6 @@
         <argument value="file://${failedDirectory}"/>
     </bean>
 
-    <bean id="exportedDirectoryPath" class="java.nio.file.Paths"
-          factory-method="get">
-        <argument value="file://${exportedDirectory}"/>
-    </bean>
-
     <bean id="configurationFileFactory"
           class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
         <argument ref="persistenceStrategy"/>
@@ -85,7 +79,7 @@
     </bean>
 
     <bean id="configurationFileDirectory"
-        class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
+        class="org.codice.ddf.configuration.store.ConfigurationAdminMigrator"
         init-method="init">
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>

@@ -24,19 +24,19 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConfigurationMigrationManager.class);
 
-    private ConfigurationFileDirectory configurationFileDirectory;
+    private ConfigurationAdminMigrator configurationAdminMigrator;
 
     private SystemConfigurationMigrator systemConfigurationMigrator;
 
-    public ConfigurationMigrationManager(ConfigurationFileDirectory configurationFileDirectory,
+    public ConfigurationMigrationManager(ConfigurationAdminMigrator configurationAdminMigrator,
             SystemConfigurationMigrator systemConfigurationMigrator) {
-        this.configurationFileDirectory = configurationFileDirectory;
+        this.configurationAdminMigrator = configurationAdminMigrator;
         this.systemConfigurationMigrator = systemConfigurationMigrator;
     }
 
     @Override
     public void export(Path exportDirectory) throws ConfigurationFileException, IOException {
-        this.configurationFileDirectory.export(exportDirectory);
+        this.configurationAdminMigrator.export(exportDirectory);
         this.systemConfigurationMigrator.export(exportDirectory);
     }
 }
