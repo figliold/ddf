@@ -102,7 +102,8 @@ This quick tutorial will demonstrate:
 - [*] Installation
 - [*] Catalog Capabilities: Ingest and query using every endpoint
 - [*] Use of the Content Framework
-- [*] Metrics Reporting
+- [*] Metrics Reporting 
+- [*] Configuration Export/Import
 
 ==== Prerequisites
 Review link:prerequisites.html[Prerequisites] to ensure all system prerequisites are met.
@@ -220,6 +221,27 @@ Complete the following procedure now that several queries have been executed.
 ====
 Based on the browser's configuration, the .xls file will be downloaded or automatically displayed in Excel.
 ====
+
+=== Configuration Export/Import
+==== Export Configuration Settings
+
+1) Launch DDF.
+
+2) At the Admin Console, select any Active Application that you want to save.
+
+3) For each Active Application selected, click Save changes on the configuration that you want to save. This creates the configuration files.
+
+4) Using the DDF command line interface (CLI), type in config-export. The exported files will be exported to <DISTRIBUTION_INSTALL_DIR>/etc/exported
+
+5) Zip up the exported files in <DISTRIBUTION_INSTALL_DIR>/etc/exported
+
+==== Import Configuration Settings
+
+1) Unzip the exported files from a previous installation in the <DISTRIBUTION_INSTALL_DIR>/etc directory.
+
+2) Launch the newly installed DDF. 
+
+3) Step through the DDF installation process. The newly installed DDF should have the previous DDF's settings imported.
 
 == Using {branding}
 
