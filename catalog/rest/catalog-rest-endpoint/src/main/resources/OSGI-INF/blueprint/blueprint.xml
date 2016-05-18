@@ -69,4 +69,19 @@
 		</service-properties>
 	</service>
 
+	<reference id="resourceCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
+
+	<bean id="cacheOnlyActionProvider"
+          class="org.codice.ddf.endpoints.rest.action.CacheOnlyMetacardTransformerActionProvider">
+		<argument value="catalog.data.metacard.cache.only"/>
+		<argument value="resource"/>
+		<argument ref="resourceCache"/>
+	</bean>
+
+	<service ref="cacheOnlyActionProvider" interface="ddf.action.ActionProvider">
+		<service-properties>
+			<entry key="id" value="catalog.data.metacard.cache.only"/>
+		</service-properties>
+	</service>
+
 </blueprint>

@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,10 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
     private static final String DEFAULT_MIME_TYPE_STR = "application/octet-stream";
 
+    private static final String TEXT_PLAIN_MIME_TYPE_STR = "text/plain";
+
+    private static final String CACHE_ONLY = "cacheonly";
+
     private CatalogFramework catalogFramework;
 
     /**
@@ -63,7 +69,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException {
+        throws CatalogTransformerException {
 
         LOGGER.trace("Entering resource ResourceMetacardTransformer.transform");
 
@@ -72,7 +78,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                     "Could not transform metacard to a resource because the metacard is not valid.");
         }
 
-        if(StringUtils.isNotEmpty(metacard.getResourceSize())) {
+        if (StringUtils.isNotEmpty(metacard.getResourceSize())) {
             arguments.put(Metacard.RESOURCE_SIZE, metacard.getResourceSize());
         }
 
@@ -91,60 +97,56 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
         String resourceUriAscii = "";
         if (metacard.getResourceURI() != null) {
-            resourceUriAscii = metacard.getResourceURI()
-                    .toASCIIString();
+            resourceUriAscii = metacard.getResourceURI().toASCIIString();
         }
 
         try {
             resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
         } catch (IOException e) {
-            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
-                    sourceName,
-                    resourceUriAscii,
-                    e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    resourceUriAscii, e.getMessage()), e);
         } catch (ResourceNotFoundException e) {
-            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
-                    sourceName,
-                    resourceUriAscii,
-                    e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    resourceUriAscii, e.getMessage()), e);
         } catch (ResourceNotSupportedException e) {
-            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
-                    sourceName,
-                    resourceUriAscii,
-                    e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    resourceUriAscii, e.getMessage()), e);
         }
 
         if (resourceResponse == null) {
-            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
-                    sourceName,
-                    resourceUriAscii));
+            throw new CatalogTransformerException(
+                    retrieveResourceFailureMessage(id, sourceName, resourceUriAscii));
         }
 
-        Resource transformedContent = resourceResponse.getResource();
-        MimeType mimeType = transformedContent.getMimeType();
+        if (arguments.containsKey(CACHE_ONLY)) {
+            InputStream is = IOUtils.toInputStream(
+                    String.format("The resource for metacard with id [%s] is being cached.", id));
+            return new ResourceImpl(is, TEXT_PLAIN_MIME_TYPE_STR, "");
+        } else {
+            Resource transformedContent = resourceResponse.getResource();
+            MimeType mimeType = transformedContent.getMimeType();
 
-        if (mimeType == null) {
-            try {
-                mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
-                // There is no method to set the MIME type, so in order to set it to our default
-                // one, we need to create a new object.
-                transformedContent = new ResourceImpl(transformedContent.getInputStream(),
-                        mimeType,
-                        transformedContent.getName());
-            } catch (MimeTypeParseException e) {
-                throw new CatalogTransformerException(
-                        "Could not create default mime type upon null mimeType, for default mime type '"
-                                + DEFAULT_MIME_TYPE_STR + "'.",
-                        e);
+            if (mimeType == null) {
+                try {
+                    mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
+                    // There is no method to set the MIME type, so in order to
+                    // set it to our default one, we need to create a new object.
+                    transformedContent = new ResourceImpl(transformedContent.getInputStream(),
+                            mimeType, transformedContent.getName());
+                } catch (MimeTypeParseException e) {
+                    throw new CatalogTransformerException(
+                            "Could not create default mime type upon null mimeType, for default mime type '"
+                                    + DEFAULT_MIME_TYPE_STR + "'.",
+                            e);
+                }
             }
-        }
-        LOGGER.debug(
-                "Found mime type: '{}' for product of metacard with id: '{}'.\nGetting associated resource from input stream. \n",
-                mimeType,
-                id);
+            LOGGER.debug(
+                    "Found mime type: '{}' for product of metacard with id: '{}'.\nGetting associated resource from input stream. \n",
+                    mimeType, id);
 
-        LOGGER.trace("Exiting resource transform for metacard id: '{}'", id);
-        return transformedContent;
+            LOGGER.trace("Exiting resource transform for metacard id: '{}'", id);
+            return transformedContent;
+        }
     }
 
     /**

@@ -13,7 +13,9 @@
  */
 package ddf.catalog.transformer.resource;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -25,8 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.activation.MimeType;
 
@@ -72,6 +76,10 @@ public class TestResourceMetacardTransformer {
 
     private static final String TS_FILE_NAME_1 = "transport-stream.ts";
 
+    private static final String TEXT_PLAIN_MIME_TYPE_STR = "text/plain";
+
+    private static final String CACHE_ONLY = "cacheonly";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -83,7 +91,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = true;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     /**
@@ -121,7 +129,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = true;
         MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     @Test
@@ -135,7 +143,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     @Test
@@ -150,7 +158,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     @Test
@@ -178,7 +186,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
         CatalogFramework framework = getFramework(null);
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
 
     }
 
@@ -197,7 +205,7 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
         CatalogFramework framework = getFrameworkException(new IOException("Test IO Exception"));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
 
     }
 
@@ -217,7 +225,7 @@ public class TestResourceMetacardTransformer {
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
         CatalogFramework framework = getFrameworkException(new ResourceNotFoundException(
                 "Test Resource Not Found Exception"));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     @Test
@@ -235,7 +243,7 @@ public class TestResourceMetacardTransformer {
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
         CatalogFramework framework = getFrameworkException(new ResourceNotSupportedException(
                 "Test Resource Not Supported Exception"));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
     }
 
     @Test
@@ -246,17 +254,33 @@ public class TestResourceMetacardTransformer {
         boolean expectSuccess = true;
         MimeType mimeType = getMimeType(DEFAULT_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(null, uri)));
-        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+        testGetResource(metacard, filePath, mimeType, framework, new HashMap<String, Serializable>(), expectSuccess);
+    }
+
+    @Test
+    public void testGetResourceCacheOnly() throws Exception {
+        String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+        URI uri = getUri(filePath);
+        Metacard metacard = getMockMetacard(uri);
+        String expectedDownloadingMsg = String.format(
+                "The resource for metacard with id [%s] is being cached.", metacard.getId());
+        MimeType mimeType = getMimeType(TEXT_PLAIN_MIME_TYPE_STR);
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
+        Map<String, Serializable> queryParameters = new HashMap<>();
+        queryParameters.put(CACHE_ONLY, null);
+        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(framework);
+        BinaryContent binaryContent = resourceTransformer.transform(metacard, queryParameters);
+        assertThat(binaryContent.getMimeTypeValue(), is(mimeType.toString()));
+        assertThat(new String(binaryContent.getByteArray(), StandardCharsets.UTF_8), is(expectedDownloadingMsg));
     }
 
     private void testGetResource(Metacard metacard, String filePath, MimeType mimeType,
-            CatalogFramework framework, boolean expectSuccess) throws Exception {
+            CatalogFramework framework, Map<String, Serializable> queryParameters, boolean expectSuccess) throws Exception {
 
         ResourceMetacardTransformer resourceTransformer =
                 new ResourceMetacardTransformer(framework);
 
-        BinaryContent binaryContent = resourceTransformer.transform(metacard,
-                new HashMap<String, Serializable>());
+        BinaryContent binaryContent = resourceTransformer.transform(metacard, queryParameters);
 
         byte[] fileContents = FileUtils.readFileToByteArray(new File(filePath));
 

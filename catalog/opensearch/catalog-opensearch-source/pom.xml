@@ -193,6 +193,9 @@
                             org.apache.abdera.i18n.iri, <!-- Element -->
                             org.apache.abdera.i18n.rfc4646, <!-- Element -->
                             com.ctc.wstx.stax, <!-- needed by FOMWriter -->
+                            !org.junit.*,
+                            !org.mockito.*,
+                            !org.hamcrest.*,
                             *
                         </Import-Package>
                         <Private-Package>
