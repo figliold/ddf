@@ -41,7 +41,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider(SAMPLE_PROTOCOL,
                 "23^&*#",
@@ -63,7 +63,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId("abd ef");
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -86,7 +86,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId("abd&ef");
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -108,7 +108,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(null);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -125,7 +125,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL,
@@ -148,7 +148,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL,
@@ -169,7 +169,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL,
@@ -191,7 +191,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL,
@@ -209,7 +209,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     @Test
     public void testNonMetacard() {
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -227,7 +227,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -255,7 +255,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         String newSourceName = "newSource";
         metacard.setSourceId(newSourceName);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
@@ -278,7 +278,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         MetacardImpl metacard = new MetacardImpl();
 
         metacard.setId(SAMPLE_ID);
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
         this.configureSecureActionProvider();
 
@@ -303,7 +303,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+        ViewMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
         this.configureActionProvider(null,

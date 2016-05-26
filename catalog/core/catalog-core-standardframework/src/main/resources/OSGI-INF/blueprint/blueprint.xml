@@ -29,7 +29,7 @@
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
-    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
 
@@ -96,29 +96,33 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="ddf"/>
     </reference-list>
-	<!-- CATALOG STORE REFERENCE -->
-	<reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
-					availability="optional">
-		<reference-listener bind-method="bind"
-							unbind-method="unbind" ref="catalogStoreMap"/>
-	</reference-list>
+    <!-- CATALOG STORE REFERENCE -->
+    <reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
+                    availability="optional">
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="catalogStoreMap"/>
+    </reference-list>
     <!-- CONTENT -->
-    <reference-list id="preCreateStorage" interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
+    <reference-list id="preCreateStorage"
+                    interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preCreateStorageSortedList"/>
     </reference-list>
-    <reference-list id="postCreateStorage" interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
+    <reference-list id="postCreateStorage"
+                    interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postCreateStorageSortedList"/>
     </reference-list>
-    <reference-list id="preUpdateStorage" interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
+    <reference-list id="preUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preUpdateStorageSortedList"/>
     </reference-list>
-    <reference-list id="postUpdateStorage" interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
+    <reference-list id="postUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postUpdateStorageSortedList"/>
@@ -126,21 +130,21 @@
     <!-- PREINGEST REFERENCE -->
     <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTINGEST REFERENCE -->
     <reference-list id="postIngest" interface="ddf.catalog.plugin.PostIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- PREQUERY REFERENCE -->
     <reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTQUERY REFERENCE -->
     <reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
                     availability="optional">
@@ -243,8 +247,8 @@
     </bean>
 
     <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">
-        <argument ref="filterAdapter" />
-        <argument ref="filterBuilder" />
+        <argument ref="filterAdapter"/>
+        <argument ref="filterBuilder"/>
     </bean>
 
     <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
@@ -259,7 +263,7 @@
         <argument ref="cacheThreadPool"/>
         <argument ref="filterAdapter"/>
         <argument ref="filterBuilder"/>
-        <argument ref="validationQueryFactory" />
+        <argument ref="validationQueryFactory"/>
         <property name="maxStartIndex" value="50000"/>
     </bean>
 
@@ -320,6 +324,19 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
+    <bean id="downloadResourceActionProvider"
+          class="ddf.catalog.resource.actions.DownloadResourceActionProvider">
+        <argument value="catalog.data.metacard.resource.download"/>
+        <argument ref="productCache"/>
+        <argument ref="reliableResourceDownloadManager"/>
+    </bean>
+
+    <service ref="downloadResourceActionProvider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.metacard.resource.download"/>
+        </service-properties>
+    </service>
+
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
     <!-- create the ddf bean -->
@@ -358,7 +375,7 @@
                 <property name="filterBuilder" ref="filterBuilder"/>
                 <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                <property name="validationQueryFactory" ref="validationQueryFactory" />
+                <property name="validationQueryFactory" ref="validationQueryFactory"/>
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>

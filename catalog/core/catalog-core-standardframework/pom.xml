@@ -46,6 +46,15 @@
             <artifactId>action-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-actions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
@@ -222,6 +231,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            catalog-core-actions,
                             catalog-core-solr,
                             notifications,
                             activities,
@@ -240,6 +250,7 @@
                             ddf.catalog.federation.base,
                             ddf.catalog.filter.impl,
                             ddf.catalog.source.impl,
+                            ddf.catalog.resource.actions,
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
                             ddf.catalog.resourceretriever
@@ -262,6 +273,7 @@
                             com.vividsolutions.jts.simplify,
                             com.vividsolutions.jts.util,
                             ddf.action;version="1.0",
+                            ddf.action.impl,
                             ddf.catalog;version="2.0",
                             ddf.catalog.event;version="2.0",
                             ddf.catalog.filter.delegate;version=${project.version},

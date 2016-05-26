@@ -13,18 +13,22 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
+import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.CharEncoding;
+import org.codice.ddf.catalog.actions.AbstractMetacardActionProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
+import ddf.catalog.data.Metacard;
 
 public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
@@ -34,9 +38,6 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     static final String DESCRIPTION_SUFFIX = " transformer";
 
     static final String TITLE_PREFIX = "Export as ";
-
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(MetacardTransformerActionProvider.class);
 
     private String metacardTransformerId;
 
@@ -48,40 +49,32 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
      */
     public MetacardTransformerActionProvider(String actionProviderId,
             String metacardTransformerId) {
-        super();
-        this.actionProviderId = actionProviderId;
+        super(actionProviderId,
+                TITLE_PREFIX + metacardTransformerId,
+                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX);
         this.metacardTransformerId = metacardTransformerId;
     }
 
     @Override
-    protected Action getAction(String metacardId, String metacardSource) {
-
-        URL url = null;
-        try {
-
-            URI uri = new URI(SystemBaseUrl.constructUrl(
-                    PATH + "/" + metacardSource + "/" + metacardId + "?transform="
-                            + metacardTransformerId, true));
-            url = uri.toURL();
-
-        } catch (MalformedURLException e) {
-            LOGGER.info("Malformed URL exception", e);
-            return null;
-        } catch (URISyntaxException e) {
-            LOGGER.info("URI Syntax exception", e);
-            return null;
-        }
-
-        return new ActionImpl(getId(),
-                TITLE_PREFIX + metacardTransformerId,
-                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX,
-                url);
-
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
+            throws IOException {
+        String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
+        String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
+        return getActionUrl(encodedMetacardSource, encodedMetacardId);
     }
 
-    @Override
-    public String toString() {
+    protected Action createMetacardAction(String actionProviderId, String title, String description,
+            URL url) {
+        return new ActionImpl(actionProviderId, title, description, url);
+    }
 
-        return ActionProvider.class.getName() + " [" + getId() + "], Impl=" + getClass().getName();
+    private URL getActionUrl(String metacardSource, String metacardId)
+            throws MalformedURLException {
+        return new URL(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s?transform=%s",
+                CONTEXT_ROOT,
+                SOURCES_PATH,
+                metacardSource,
+                metacardId,
+                metacardTransformerId), true));
     }
 }

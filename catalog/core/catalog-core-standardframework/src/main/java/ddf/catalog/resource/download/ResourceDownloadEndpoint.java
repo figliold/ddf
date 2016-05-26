@@ -15,7 +15,7 @@ package ddf.catalog.resource.download;
 
 import java.io.IOException;
 
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -37,26 +37,27 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 public class ResourceDownloadEndpoint {
 
     public static final String CONTEXT_PATH = "/internal/catalog/downloads";
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceDownloadEndpoint.class);
-    
-    private static final String ERROR_MESSAGE_TEMPLATE = "Unable to download the product associated with metacard [%s] from source [%s] to the product cache.";
-    
+
+    private static final String ERROR_MESSAGE_TEMPLATE =
+            "Unable to download the product associated with metacard [%s] from source [%s] to the product cache.";
+
     private final CatalogFramework catalogFramework;
-    
+
     private final ReliableResourceDownloadManager downloadManager;
-    
-    public ResourceDownloadEndpoint(CatalogFramework catalogFramework, ReliableResourceDownloadManager downloadManager) {
+
+    public ResourceDownloadEndpoint(CatalogFramework catalogFramework,
+            ReliableResourceDownloadManager downloadManager) {
         this.catalogFramework = catalogFramework;
         this.downloadManager = downloadManager;
     }
-    
-    @POST
+
+    @GET
     @Path("/{sourceId}/{metacardId}")
     @Produces(MediaType.TEXT_PLAIN)
     public Response startDownloadToCacheOnly(@PathParam("sourceId") String sourceId,
-            @PathParam("metacardId") String metacardId)
-        throws DownloadToCacheOnlyException {
+            @PathParam("metacardId") String metacardId) throws DownloadToCacheOnlyException {
 
         ResourceRequest resourceRequest = new ResourceRequestById(metacardId);
 
@@ -69,7 +70,8 @@ public class ResourceDownloadEndpoint {
         try {
             LOGGER.debug(
                     "Attempting to download the product associated with metacard [{}] from source [{}] to the product cache.",
-                    metacardId, sourceId);
+                    metacardId,
+                    sourceId);
             ResourceResponse resourceResponse = catalogFramework.getResource(resourceRequest,
                     sourceId);
             if (resourceResponse == null) {
@@ -78,13 +80,15 @@ public class ResourceDownloadEndpoint {
                 throw new DownloadToCacheOnlyException(Status.INTERNAL_SERVER_ERROR, message);
             }
         } catch (IOException | ResourceNotSupportedException e) {
-            String message = String.format(ERROR_MESSAGE_TEMPLATE + e.getMessage(), metacardId,
+            String message = String.format(ERROR_MESSAGE_TEMPLATE + e.getMessage(),
+                    metacardId,
                     sourceId);
             LOGGER.error(message, e);
             throw new DownloadToCacheOnlyException(Status.INTERNAL_SERVER_ERROR, message);
         } catch (ResourceNotFoundException e) {
             String message = String.format(
-                    ERROR_MESSAGE_TEMPLATE + " The product could not be found.", metacardId,
+                    ERROR_MESSAGE_TEMPLATE + " The product could not be found.",
+                    metacardId,
                     sourceId);
             LOGGER.error(message, e);
             throw new DownloadToCacheOnlyException(Status.NOT_FOUND, message);
@@ -92,7 +96,9 @@ public class ResourceDownloadEndpoint {
 
         String message = String.format(
                 "The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.",
-                metacardId, sourceId);
-        return Response.ok(message, MediaType.TEXT_PLAIN_TYPE).build();
+                metacardId,
+                sourceId);
+        return Response.ok(message, MediaType.TEXT_PLAIN_TYPE)
+                .build();
     }
 }

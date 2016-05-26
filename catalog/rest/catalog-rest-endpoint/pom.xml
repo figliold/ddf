@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>catalog-rest-pom</artifactId>
@@ -55,6 +57,11 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-actions</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -105,7 +112,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system,platform-util</Embed-Dependency>
+                        <Embed-Dependency>
+                            json-smart,
+                            catalog-core-api-impl,
+                            catalog-core-actions,
+                            common-system,
+                            platform-util
+                        </Embed-Dependency>
                         <Import-Package>
                             javax.ws.rs.*,
                             *

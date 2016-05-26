@@ -43,7 +43,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String noSource = null;
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+        MetacardTransformerActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID);
 
@@ -65,7 +65,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String noSource = null;
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+        MetacardTransformerActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID);
 
@@ -89,7 +89,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String noSource = null;
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+        MetacardTransformerActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();
@@ -148,7 +148,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
         metacard.setSourceId(newSourceName);
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+        MetacardTransformerActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();

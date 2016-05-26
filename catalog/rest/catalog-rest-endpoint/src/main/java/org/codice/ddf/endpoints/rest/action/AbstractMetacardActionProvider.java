@@ -30,6 +30,11 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 
+/**
+ * @deprecated Use {@link org.codice.ddf.catalog.actions.AbstractMetacardActionProvider}
+ * instead.
+ */
+@Deprecated
 public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String UNKNOWN_TARGET = "0.0.0.0";
@@ -107,5 +112,4 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     public <T> boolean canHandle(T subject) {
         return subject instanceof Metacard;
     }
-
 }
