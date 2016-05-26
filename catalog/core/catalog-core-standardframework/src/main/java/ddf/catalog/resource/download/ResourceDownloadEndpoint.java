@@ -36,9 +36,9 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 @Path("/")
 public class ResourceDownloadEndpoint {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceDownloadEndpoint.class);
+    public static final String CONTEXT_PATH = "/internal/catalog/downloads";
     
-    private static final String CONTEXT_PATH = "/internal/catalog/downloads";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceDownloadEndpoint.class);
     
     private static final String ERROR_MESSAGE_TEMPLATE = "Unable to download the product associated with metacard [%s] from source [%s] to the product cache.";
     
@@ -52,7 +52,7 @@ public class ResourceDownloadEndpoint {
     }
     
     @POST
-    @Path(CONTEXT_PATH + "/{sourceId}/{metacardId}")
+    @Path("/{sourceId}/{metacardId}")
     @Produces(MediaType.TEXT_PLAIN)
     public Response startDownloadToCacheOnly(@PathParam("sourceId") String sourceId,
             @PathParam("metacardId") String metacardId)
@@ -90,6 +90,9 @@ public class ResourceDownloadEndpoint {
             throw new DownloadToCacheOnlyException(Status.NOT_FOUND, message);
         }
 
-        return Response.ok().build();
+        String message = String.format(
+                "The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.",
+                metacardId, sourceId);
+        return Response.ok(message, MediaType.TEXT_PLAIN_TYPE).build();
     }
 }

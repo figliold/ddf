@@ -423,7 +423,7 @@
         <argument ref="reliableResourceDownloadManager"/>
     </bean>
 
-    <jaxrs:server id="resourceDownloadEnpoint" address="/">
+    <jaxrs:server id="resourceDownloadEnpoint" address="/internal/catalog/downloads">
         <jaxrs:serviceBeans>
             <ref component-id="resourceDownloadBean" />
         </jaxrs:serviceBeans>
@@ -431,4 +431,5 @@
             <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper" />
         </jaxrs:providers>
     </jaxrs:server>
+
 </blueprint>
