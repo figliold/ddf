@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * {@link ActionProvider}.
      *
      * @param actionProviderId ID that will be assigned to the {@link Action} that will be
-     *                         created
+     *                         created. Cannot be empty or blank.
      * @param title            title that will be used when this {@link ActionProvider} creates a
      *                         new {@link Action}
      * @param description      description that will be used when this {@link ActionProvider}
@@ -57,6 +58,11 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      */
     protected AbstractMetacardActionProvider(String actionProviderId, String title,
             String description) {
+        Validate.notNull(actionProviderId, "Action provider ID cannot be null");
+        Validate.notEmpty(actionProviderId.trim(), "Action provider ID cannot be empty or blank");
+        Validate.notNull(title, "Title cannot be null");
+        Validate.notNull(description, "Description cannot be null");
+
         this.actionProviderId = actionProviderId;
         this.title = title;
         this.description = description;
