@@ -31,8 +31,7 @@ import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 
 /**
- * @deprecated Use {@link org.codice.ddf.catalog.actions.AbstractMetacardActionProvider}
- * instead.
+ * @deprecated As of 2.10.0, replaced by {@link org.codice.ddf.catalog.actions.AbstractMetacardActionProvider}
  */
 @Deprecated
 public abstract class AbstractMetacardActionProvider implements ActionProvider {

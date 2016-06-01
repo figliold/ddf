@@ -60,46 +60,9 @@ public class AbstractMetacardActionProviderTest {
         when(metacard.getSourceId()).thenReturn(SOURCE_ID);
     }
 
-    private class ActionImpl implements Action {
-        public String id;
-
-        public String title;
-
-        public String description;
-
-        public URL url;
-
-        ActionImpl(String id, String title, String description, URL url) {
-            this.id = id;
-            this.title = title;
-            this.description = description;
-            this.url = url;
-        }
-
-        @Override
-        public String getId() {
-            return title;
-        }
-
-        @Override
-        public URL getUrl() {
-            return url;
-        }
-
-        @Override
-        public String getTitle() {
-            return title;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
-        }
-    }
-
     private class MetacardActionProvider extends AbstractMetacardActionProvider {
 
-        protected MetacardActionProvider(String actionProviderId, String title,
+        MetacardActionProvider(String actionProviderId, String title,
                 String description) {
             super(actionProviderId, title, description);
         }
@@ -144,27 +107,21 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void canHandleWithNull() {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         assertThat(actionProvider.canHandle(null), is(false));
         verify(actionProvider, never()).canHandleMetacard(any());
     }
 
     @Test
     public void canHandleWithNonMetacard() {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         assertThat(actionProvider.canHandle("blah"), is(false));
         verify(actionProvider, never()).canHandleMetacard(any());
     }
 
     @Test
     public void canHandleDelegatesToCanHandleMetacard() {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
 
         assertThat(actionProvider.canHandle(metacard), is(true));
@@ -173,9 +130,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWithNull() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
 
         List<Action> actions = actionProvider.getActions(null);
 
@@ -185,9 +140,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWithNonMetacard() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
 
         List<Action> actions = actionProvider.getActions("blah");
 
@@ -197,9 +150,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWithMetacardThatHasNullId() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(null);
 
         List<Action> actions = actionProvider.getActions(metacard);
@@ -210,9 +161,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWithMetacardThatHasBlankId() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(" ");
 
         List<Action> actions = actionProvider.getActions(metacard);
@@ -223,9 +172,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWhenHostNotSet() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
         when(actionProvider.createMetacardAction(eq(ACTION_ID),
                 eq(TITLE),
@@ -242,9 +189,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWhenHostUnknown() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
         when(actionProvider.createMetacardAction(eq(ACTION_ID),
                 eq(TITLE),
@@ -261,9 +206,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWhenSubclassCannotHandleMetacard() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(false);
 
         List<Action> actions = actionProvider.getActions(metacard);
@@ -274,9 +217,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActions() {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.createMetacardAction(eq(ACTION_ID),
                 eq(TITLE),
                 eq(DESCRIPTION),
@@ -308,9 +249,7 @@ public class AbstractMetacardActionProviderTest {
 
     @Test
     public void getActionsWhenMetacardSourceIdIsNull() throws IOException {
-        MetacardActionProvider actionProvider = spy(new MetacardActionProvider(ACTION_ID,
-                TITLE,
-                DESCRIPTION));
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getSourceId()).thenReturn(null);
         System.setProperty(SystemBaseUrl.HOST, "codice.org");
         System.setProperty(SystemInfo.SITE_NAME, "ddf");
@@ -323,5 +262,9 @@ public class AbstractMetacardActionProviderTest {
 
         assertThat(actions, hasItem(action));
         verify(actionProvider).getMetacardAction("ddf", metacard);
+    }
+
+    private MetacardActionProvider createMetacardActionProvider() {
+        return spy(new MetacardActionProvider(ACTION_ID, TITLE, DESCRIPTION));
     }
 }
