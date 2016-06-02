@@ -161,7 +161,6 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * @param description      {@link Action} description
      * @param url              {@link Action} url
      * @return new {@link Action} object. Cannot be {@code null}.
-     * @throws IOException thrown if the URL needed for the {@link Action} couldn't be created
      */
     protected abstract Action createMetacardAction(String actionProviderId, String title,
             String description, URL url);
