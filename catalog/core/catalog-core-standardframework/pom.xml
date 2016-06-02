@@ -221,6 +221,11 @@
             <artifactId>mime-core-impl</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -237,6 +242,7 @@
                             activities,
                             hazelcast;scope=runtime|compile,
                             commons-collections,
+                            commons-lang3,
                             platform-util
                         </Embed-Dependency>
                         <Private-Package>

@@ -103,6 +103,11 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -117,7 +122,8 @@
                             catalog-core-api-impl,
                             catalog-core-actions,
                             common-system,
-                            platform-util
+                            platform-util,
+                            commons-lang3
                         </Embed-Dependency>
                         <Import-Package>
                             javax.ws.rs.*,
