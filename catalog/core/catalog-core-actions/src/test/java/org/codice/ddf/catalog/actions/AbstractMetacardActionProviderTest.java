@@ -85,7 +85,7 @@ public class AbstractMetacardActionProviderTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructorWithNullActionProviderId() {
         new MetacardActionProvider(null, TITLE, DESCRIPTION);
     }
@@ -95,12 +95,12 @@ public class AbstractMetacardActionProviderTest {
         new MetacardActionProvider("  ", TITLE, DESCRIPTION);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructorWithNullTitle() {
         new MetacardActionProvider(ACTION_ID, null, DESCRIPTION);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructorWithNullDescription() {
         new MetacardActionProvider(ACTION_ID, TITLE, null);
     }
