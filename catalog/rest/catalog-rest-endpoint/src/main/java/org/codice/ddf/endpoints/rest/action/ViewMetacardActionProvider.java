@@ -16,8 +16,7 @@ package org.codice.ddf.endpoints.rest.action;
 import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
 import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -40,8 +39,7 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
     }
 
     @Override
-    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-            throws IOException {
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
         String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
         String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
         return getActionUrl(encodedMetacardSource, encodedMetacardId);
@@ -52,12 +50,11 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
         return new ActionImpl(actionProviderId, title, description, url);
     }
 
-    private URL getActionUrl(String metacardSource, String metacardId)
-            throws MalformedURLException {
-        return new URL(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s",
+    private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s",
                 CONTEXT_ROOT,
                 SOURCES_PATH,
                 metacardSource,
-                metacardId), true));
+                metacardId), true)).toURL();
     }
 }

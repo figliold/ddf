@@ -36,7 +36,7 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 @Path("/")
 public interface RESTService {
 
-    String CONTEXT_ROOT = "/catalog";
+    String CONTEXT_ROOT = "catalog";
     String SOURCES_PATH = "/sources";
 
     /**

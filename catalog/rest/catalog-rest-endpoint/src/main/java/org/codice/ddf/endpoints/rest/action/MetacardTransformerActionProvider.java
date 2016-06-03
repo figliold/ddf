@@ -16,8 +16,9 @@ package org.codice.ddf.endpoints.rest.action;
 import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
 import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -26,7 +27,6 @@ import org.codice.ddf.catalog.actions.AbstractMetacardActionProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.data.Metacard;
 
@@ -42,7 +42,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     private String metacardTransformerId;
 
     /**
-     * Constructor to instantiate this Metacard {@link ActionProvider}
+     * Constructor to instantiate this Metacard {@link ddf.action.ActionProvider}
      *
      * @param actionProviderId
      * @param metacardTransformerId
@@ -56,8 +56,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     }
 
     @Override
-    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-            throws IOException {
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
         String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
         String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
         return getActionUrl(encodedMetacardSource, encodedMetacardId);
@@ -69,12 +68,12 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     }
 
     private URL getActionUrl(String metacardSource, String metacardId)
-            throws MalformedURLException {
-        return new URL(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s?transform=%s",
+            throws MalformedURLException, URISyntaxException {
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s?transform=%s",
                 CONTEXT_ROOT,
                 SOURCES_PATH,
                 metacardSource,
                 metacardId,
-                metacardTransformerId), true));
+                metacardTransformerId), true)).toURL();
     }
 }

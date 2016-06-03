@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.catalog.actions;
 
 import static org.hamcrest.Matchers.empty;
@@ -62,8 +75,7 @@ public class AbstractMetacardActionProviderTest {
 
     private class MetacardActionProvider extends AbstractMetacardActionProvider {
 
-        MetacardActionProvider(String actionProviderId, String title,
-                String description) {
+        MetacardActionProvider(String actionProviderId, String title, String description) {
             super(actionProviderId, title, description);
         }
 
@@ -80,7 +92,7 @@ public class AbstractMetacardActionProviderTest {
 
         @Override
         protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-                throws IOException {
+                throws Exception {
             return new URL("https://localhost/action");
         }
     }
@@ -129,7 +141,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWithNull() throws IOException {
+    public void getActionsWithNull() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
 
         List<Action> actions = actionProvider.getActions(null);
@@ -139,7 +151,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWithNonMetacard() throws IOException {
+    public void getActionsWithNonMetacard() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
 
         List<Action> actions = actionProvider.getActions("blah");
@@ -149,7 +161,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWithMetacardThatHasNullId() throws IOException {
+    public void getActionsWithMetacardThatHasNullId() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(null);
 
@@ -160,7 +172,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWithMetacardThatHasBlankId() throws IOException {
+    public void getActionsWithMetacardThatHasBlankId() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(" ");
 
@@ -171,7 +183,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWhenHostNotSet() throws IOException {
+    public void getActionsWhenHostNotSet() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
         when(actionProvider.createMetacardAction(eq(ACTION_ID),
@@ -188,7 +200,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWhenHostUnknown() throws IOException {
+    public void getActionsWhenHostUnknown() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(true);
         when(actionProvider.createMetacardAction(eq(ACTION_ID),
@@ -205,7 +217,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWhenSubclassCannotHandleMetacard() throws IOException {
+    public void getActionsWhenSubclassCannotHandleMetacard() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(false);
 
@@ -248,7 +260,7 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Test
-    public void getActionsWhenMetacardSourceIdIsNull() throws IOException {
+    public void getActionsWhenMetacardSourceIdIsNull() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getSourceId()).thenReturn(null);
         System.setProperty(SystemBaseUrl.HOST, "codice.org");

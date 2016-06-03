@@ -15,8 +15,7 @@ package ddf.catalog.resource.actions;
 
 import static ddf.catalog.resource.download.ResourceDownloadEndpoint.CONTEXT_PATH;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -65,8 +64,7 @@ public class DownloadResourceActionProvider extends AbstractMetacardActionProvid
     }
 
     @Override
-    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-            throws IOException {
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
         String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
         String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
         return getActionUrl(encodedMetacardSource, encodedMetacardId);
@@ -82,11 +80,10 @@ public class DownloadResourceActionProvider extends AbstractMetacardActionProvid
         return resourceCache.isPending(key) || resourceCache.containsValid(key, metacard);
     }
 
-    private URL getActionUrl(String metacardSource, String metacardId)
-            throws MalformedURLException {
-        return new URL(SystemBaseUrl.constructUrl(String.format("%s/%s/%s",
+    private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s/%s/%s",
                 CONTEXT_PATH,
                 metacardSource,
-                metacardId), true));
+                metacardId), true)).toURL();
     }
 }

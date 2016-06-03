@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.actions;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +57,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      */
     protected AbstractMetacardActionProvider(String actionProviderId, String title,
             String description) {
-        Validate.notBlank(actionProviderId.trim(), "Action provider ID cannot be null, empty or blank");
+        Validate.notBlank(actionProviderId.trim(),
+                "Action provider ID cannot be null, empty or blank");
         Validate.notNull(title, "Title cannot be null");
         Validate.notNull(description, "Description cannot be null");
 
@@ -95,7 +95,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
         try {
             return Collections.singletonList(getMetacardAction(getSource(metacard), metacard));
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.warn("Cannot create Action URL for metacard {}.", metacard.getId(), e);
             return Collections.emptyList();
         }
@@ -143,10 +143,9 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * @param metacardSource source ID of the {@link Metacard}
      * @param metacard       {@link Metacard} to create an {@link Action} from
      * @return new {@link Action} object. Cannot be {@code null}.
-     * @throws IOException thrown if the URL needed for the {@link Action} couldn't be created
+     * @throws Exception thrown if an error occurred while creating the {@link Action}
      */
-    protected Action getMetacardAction(String metacardSource, Metacard metacard)
-            throws IOException {
+    protected Action getMetacardAction(String metacardSource, Metacard metacard) throws Exception {
         URL url = getMetacardActionUrl(metacardSource, metacard);
         return createMetacardAction(actionProviderId, title, description, url);
     }
@@ -170,10 +169,10 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * @param metacardSource source ID of the {@link Metacard}
      * @param metacard       {@link Metacard} for which a {@link URL} needs to be created
      * @return {@link URL} that will be used to create the {@link Action}
-     * @throws IOException thrown if the {@link URL} couldn't be created
+     * @throws Exception thrown if the {@link URL} couldn't be created
      */
     protected abstract URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-            throws IOException;
+            throws Exception;
 
     private boolean isHostUnset(String host) {
         return (host == null || host.trim()
