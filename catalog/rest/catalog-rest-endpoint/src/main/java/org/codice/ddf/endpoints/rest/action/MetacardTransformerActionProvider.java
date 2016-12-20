@@ -94,7 +94,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
     private URL getActionUrl(String metacardSource, String metacardId)
             throws MalformedURLException, URISyntaxException {
-        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s?transform=%s",
+        return new URI(SystemBaseUrl.constructClusterUrl(String.format("%s%s/%s/%s?transform=%s",
                 CONTEXT_ROOT,
                 SOURCES_PATH,
                 metacardSource,

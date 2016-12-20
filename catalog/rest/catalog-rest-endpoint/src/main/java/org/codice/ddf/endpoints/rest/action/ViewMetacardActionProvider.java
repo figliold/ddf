@@ -51,7 +51,7 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
     }
 
     private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
-        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s",
+        return new URI(SystemBaseUrl.constructClusterUrl(String.format("%s%s/%s/%s",
                 CONTEXT_ROOT,
                 SOURCES_PATH,
                 metacardSource,

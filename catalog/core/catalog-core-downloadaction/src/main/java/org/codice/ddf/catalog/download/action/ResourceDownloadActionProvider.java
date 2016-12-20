@@ -85,7 +85,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
     }
     
     private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
-        return new URI(SystemBaseUrl.constructUrl(String.format("%s?%s=%s&%s=%s",
+        return new URI(SystemBaseUrl.constructClusterUrl(String.format("%s?%s=%s&%s=%s",
                 CONTEXT_PATH,
                 SOURCE_PARAM,
                 metacardSource,

@@ -78,7 +78,7 @@ public class OverlayActionProvider implements ActionProvider {
                 final String metacardId = URLEncoder.encode(metacard.getId(), UTF_8);
                 final String encodedTransformerId = URLEncoder.encode(transformerId, UTF_8);
 
-                final URI uri = new URI(SystemBaseUrl.constructUrl(
+                final URI uri = new URI(SystemBaseUrl.constructClusterUrl(
                         "/catalog/sources/" + sourceId + "/" + metacardId + "?transform="
                                 + encodedTransformerId, true));
 

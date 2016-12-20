@@ -27,6 +27,8 @@ public final class SystemBaseUrl {
 
     public static final String HOST = "org.codice.ddf.system.hostname";
 
+    public static final String CLUSTER_HOST = "org.codice.ddf.system.cluster.hostname";
+
     public static final String PROTOCOL = "org.codice.ddf.system.protocol";
 
     public static final String ROOT_CONTEXT = "org.codice.ddf.system.rootContext";
@@ -36,6 +38,8 @@ public final class SystemBaseUrl {
     public static final String DEFAULT_HTTPS_PORT = "8993";
 
     public static final String DEFAULT_HOST = "localhost";
+
+    public static final String DEFAULT_CLUSTER_HOST = "localhost";
 
     public static final String DEFAULT_PROTOCOL = "https://";
 
@@ -132,6 +136,7 @@ public final class SystemBaseUrl {
                 .endsWith("://")) {
             sb.append("://");
         }
+
         sb.append(getHost());
         sb.append(":");
 
@@ -187,6 +192,14 @@ public final class SystemBaseUrl {
         return System.getProperty(HOST, DEFAULT_HOST);
     }
 
+    public static String getClusterHost() {
+        return System.getProperty(CLUSTER_HOST, DEFAULT_CLUSTER_HOST);
+    };
+
+    public static boolean isInClusterMode() {
+        return getClusterHost() != null;
+    };
+
     public static String getProtocol() {
         return System.getProperty(PROTOCOL, DEFAULT_PROTOCOL);
     }
@@ -194,4 +207,65 @@ public final class SystemBaseUrl {
     public static String getRootContext() {
         return System.getProperty(ROOT_CONTEXT, "");
     }
+
+
+
+    //FIXME temp new methods
+    public static String getBaseClusterUrl() {
+        return getBaseClusterUrl(getProtocol());
+    }
+
+    public static String getBaseClusterUrl(String proto) {
+        return constructClusterUrl(proto, null);
+    }
+
+    public static String constructClusterUrl(String context) {
+        return constructClusterUrl(getProtocol(), context);
+    }
+
+    public static String constructClusterUrl(String context, boolean includeRootContext) {
+        return constructClusterUrl(getProtocol(), context, includeRootContext);
+    }
+
+    public static String constructClusterUrl(String proto, String context) {
+        return constructClusterUrl(proto, context, false);
+    }
+
+    public static String constructClusterUrl(String proto, String context, boolean includeRootContext) {
+        StringBuilder sb = new StringBuilder();
+        String protocol = proto;
+        if (protocol == null) {
+            protocol = getProtocol();
+        }
+        sb.append(protocol);
+
+        if (!sb.toString()
+                .endsWith("://")) {
+            sb.append("://");
+        }
+
+        sb.append(getClusterHost());
+        sb.append(":");
+
+        sb.append(getPort(protocol));
+
+        if (includeRootContext) {
+            if (!getRootContext().startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(getRootContext());
+        }
+
+        if (context != null) {
+            if (!context.startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(context);
+        }
+
+        return sb.toString();
+    }
+
+
+
 }
