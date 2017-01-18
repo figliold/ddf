@@ -2310,18 +2310,38 @@ public class TestCatalog extends AbstractIntegrationTest {
         }
     }
 
-    private File copyFileToDefinitionsDir(String filename) throws IOException {
+    private File copyFileToDefinitionsDir(String filename) {
+        LOGGER.debug("##### filename: {}", filename);
         Path definitionsDirPath = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
-                "etc/definitions");
-        definitionsDirPath = Files.createDirectories(definitionsDirPath);
-        definitionsDirPath.toFile()
-                .deleteOnExit();
+                "etc",
+                "definitions");
+        LOGGER.debug("Definitions directory: {}", definitionsDirPath.toString());
+        try {
+            //definitionsDirPath = Files.createDirectories(definitionsDirPath);
+            //LOGGER.debug("Definitions directory 2: {}", definitionsDirPath.toString());
+            //definitionsDirPath.toFile()
+            //        .deleteOnExit();
 
-        Path tmpFile = definitionsDirPath.resolve(filename);
-        tmpFile.toFile()
-                .deleteOnExit();
-        Files.copy(IOUtils.toInputStream(getFileContent(filename)), tmpFile);
-        return tmpFile.toFile();
+            Path tmpFile = definitionsDirPath.resolve(filename + ".tmp");
+            //Path tmpFile = definitionsDirPath.resolve(filename);
+            //tmpFile.toFile()
+            //        .deleteOnExit();
+            LOGGER.debug("About to copy contents of {} to {}.", filename, tmpFile.toString());
+            Files.copy(IOUtils.toInputStream(getFileContent(filename)), tmpFile);
+            LOGGER.debug("Done copying contents of {} to {}.", filename, tmpFile.toString());
+
+            Path definitionsFile = definitionsDirPath.resolve(filename);
+            //definitionsFile.toFile().deleteOnExit();
+            LOGGER.debug("Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
+            Files.move(tmpFile, definitionsFile);
+            LOGGER.debug("Done renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
+            return definitionsFile.toFile();
+        } catch (Exception e) {
+            String message = "Unable to create definitions file " + filename + " in "
+                    + definitionsDirPath.toString() + ".";
+            LOGGER.debug(message, e);
+            throw new RuntimeException(message, e);
+        }
     }
 
     private File ingestDefinitionJsonWithWaitCondition(String filename,
@@ -2708,6 +2728,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
             final String newMetacardTypeName = "customtype1";
 
+            LOGGER.debug("Ingesting definitions json file customtypedefinitions.json");
             ingestDefinitionJsonWithWaitCondition("customtypedefinitions.json", () -> {
                 expect("Service to be available: " + MetacardType.class.getName()).within(30,
                         TimeUnit.SECONDS)
@@ -2716,6 +2737,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 return null;
             });
 
+            LOGGER.debug("Finished ingesting definitions json file customtypedefinitions.json");
             invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
             configureShowInvalidMetacards("true", "true", getAdminConfig());
