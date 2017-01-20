@@ -2434,7 +2434,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
-        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaultsCreate.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -2499,7 +2499,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testDefaultValuesUpdate() throws Exception {
         final String customMetacardTypeName = "custom";
-        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaultsUpdate.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -2570,7 +2570,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testInjectAttributesOnCreate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injectionsCreate.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
@@ -2620,7 +2620,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injectionsUpdate.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
