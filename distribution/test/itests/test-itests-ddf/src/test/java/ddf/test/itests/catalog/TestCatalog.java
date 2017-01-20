@@ -2327,7 +2327,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             //definitionsDirPath.toFile()
             //        .deleteOnExit();
 
-            Path tmpFile = ddfHome.resolve(filename + ".tmp");
+            Path tmpFile = ddfHome.resolve(filename + "." + System.currentTimeMillis());
             LOGGER.debug("tmp dir: {}", tmpFile);
             //Path tmpFile = definitionsDirPath.resolve(filename);
             //tmpFile.toFile()
@@ -2336,7 +2336,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             Files.copy(IOUtils.toInputStream(getFileContent(filename)), tmpFile);
             LOGGER.debug("##### Done copying contents of {} to {}.", filename, tmpFile.toString());
 
-            Path definitionsFile = definitionsDirPath.resolve(filename);
+            Path definitionsFile = definitionsDirPath.resolve(System.currentTimeMillis() + filename);
             //definitionsFile.toFile().deleteOnExit();
             LOGGER.debug("##### Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
             Files.move(tmpFile, definitionsFile);
@@ -2434,7 +2434,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
-        File file = ingestDefinitionJsonWithWaitCondition("defaultsCreate.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -2499,7 +2499,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testDefaultValuesUpdate() throws Exception {
         final String customMetacardTypeName = "custom";
-        File file = ingestDefinitionJsonWithWaitCondition("defaultsUpdate.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -2570,7 +2570,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testInjectAttributesOnCreate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injectionsCreate.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
@@ -2620,7 +2620,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injectionsUpdate.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
