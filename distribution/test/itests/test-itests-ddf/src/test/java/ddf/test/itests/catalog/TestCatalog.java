@@ -1664,16 +1664,19 @@ public class TestCatalog extends AbstractIntegrationTest {
             /* START SERVICES
             Add instances of the rules */
             getServiceManager().startFeature(true, "catalog-metacardingest-network");
+            getServiceManager().waitForRequiredBundles(bundleSymbolicName);
             getServiceManager().createManagedService(factoryPid, networkRule1Properties);
             getServiceManager().createManagedService(factoryPid, networkRule2Properties);
-            getServiceManager().waitForRequiredBundles(bundleSymbolicName);
 
             /* INGEST
             Working with two metacard xml files and one txt file to serve as a tika product */
             String simpleProductId = ingestMetacardAndGetId("simple-product.txt",
                     MediaType.TEXT_PLAIN);
+            LOGGER.debug("%%%%% simpleProductId: {}", simpleProductId);
             String card1Id = ingestMetacardAndGetId("modified-metacard-1.xml", MediaType.TEXT_XML);
+            LOGGER.debug("%%%%% card1Id: {}", card1Id);
             String card2Id = ingestMetacardAndGetId("modified-metacard-2.xml", MediaType.TEXT_XML);
+            LOGGER.debug("%%%%% card2Id: {}", card2Id);
 
             /* VALIDATION
             Note only the first validation gets security since it's parsed by tika */
@@ -2312,34 +2315,37 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private File copyFileToDefinitionsDir(String filename) {
         LOGGER.debug("##### filename: {}", filename);
+        Path ddfHome = Paths.get(System.getProperty(DDF_HOME_PROPERTY));
+        LOGGER.debug("##### DDF HOME: {}", ddfHome.toString());
         Path definitionsDirPath = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
                 "etc",
                 "definitions");
-        LOGGER.debug("Definitions directory: {}", definitionsDirPath.toString());
+        LOGGER.debug("##### Definitions directory: {}", definitionsDirPath.toString());
         try {
             //definitionsDirPath = Files.createDirectories(definitionsDirPath);
             //LOGGER.debug("Definitions directory 2: {}", definitionsDirPath.toString());
             //definitionsDirPath.toFile()
             //        .deleteOnExit();
 
-            Path tmpFile = definitionsDirPath.resolve(filename + ".tmp");
+            Path tmpFile = ddfHome.resolve(filename + ".tmp");
+            LOGGER.debug("tmp dir: {}", tmpFile);
             //Path tmpFile = definitionsDirPath.resolve(filename);
             //tmpFile.toFile()
             //        .deleteOnExit();
-            LOGGER.debug("About to copy contents of {} to {}.", filename, tmpFile.toString());
+            LOGGER.debug("##### About to copy contents of {} to {}.", filename, tmpFile.toString());
             Files.copy(IOUtils.toInputStream(getFileContent(filename)), tmpFile);
-            LOGGER.debug("Done copying contents of {} to {}.", filename, tmpFile.toString());
+            LOGGER.debug("##### Done copying contents of {} to {}.", filename, tmpFile.toString());
 
             Path definitionsFile = definitionsDirPath.resolve(filename);
             //definitionsFile.toFile().deleteOnExit();
-            LOGGER.debug("Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
+            LOGGER.debug("##### Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
             Files.move(tmpFile, definitionsFile);
-            LOGGER.debug("Done renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
+            LOGGER.debug("##### Done renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
             return definitionsFile.toFile();
         } catch (Exception e) {
-            String message = "Unable to create definitions file " + filename + " in "
+            String message = "##### Unable to create definitions file " + filename + " in "
                     + definitionsDirPath.toString() + ".";
-            LOGGER.debug(message, e);
+            LOGGER.debug("##### " + message, e);
             throw new RuntimeException(message, e);
         }
     }
@@ -2728,7 +2734,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
             final String newMetacardTypeName = "customtype1";
 
-            LOGGER.debug("Ingesting definitions json file customtypedefinitions.json");
+            LOGGER.debug("##### Ingesting definitions json file customtypedefinitions.json");
             ingestDefinitionJsonWithWaitCondition("customtypedefinitions.json", () -> {
                 expect("Service to be available: " + MetacardType.class.getName()).within(30,
                         TimeUnit.SECONDS)
@@ -2737,7 +2743,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 return null;
             });
 
-            LOGGER.debug("Finished ingesting definitions json file customtypedefinitions.json");
+            LOGGER.debug("##### Finished ingesting definitions json file customtypedefinitions.json");
             invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
             configureShowInvalidMetacards("true", "true", getAdminConfig());
