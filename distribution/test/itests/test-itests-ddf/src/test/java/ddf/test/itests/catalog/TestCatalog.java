@@ -2339,7 +2339,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             Path definitionsFile = definitionsDirPath.resolve(System.currentTimeMillis() + filename);
             //definitionsFile.toFile().deleteOnExit();
             LOGGER.debug("##### Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
-            Files.move(tmpFile, definitionsFile);
+            Files.move(tmpFile, definitionsFile, StandardCopyOption.ATOMIC_MOVE);
             LOGGER.debug("##### Done renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
             return definitionsFile.toFile();
         } catch (Exception e) {
