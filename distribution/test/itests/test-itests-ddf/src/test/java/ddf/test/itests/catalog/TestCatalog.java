@@ -48,10 +48,12 @@ import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -2341,6 +2343,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             LOGGER.debug("##### Renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
             Files.move(tmpFile, definitionsFile, StandardCopyOption.ATOMIC_MOVE);
             LOGGER.debug("##### Done renaming {} to {}.", tmpFile.toString(), definitionsFile.toString());
+            LOGGER.debug("##### Contents of {}:\n{}", definitionsFile.toString(), IOUtils.toString(new FileInputStream(definitionsFile.toFile()), StandardCharsets.UTF_8.name()));
             return definitionsFile.toFile();
         } catch (Exception e) {
             String message = "##### Unable to create definitions file " + filename + " in "

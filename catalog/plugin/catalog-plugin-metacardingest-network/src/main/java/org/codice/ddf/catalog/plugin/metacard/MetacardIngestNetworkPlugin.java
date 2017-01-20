@@ -209,9 +209,40 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
             }
 
             List<Metacard> metacards = request.getMetacards();
+            LOGGER.debug("%%%%% Setting attributes {} on metacards {}", metacardCondition.getParsedAttributes(), metacards);
             List<Metacard> newMetacards = metacardServices.setAttributesIfAbsent(metacards,
                     metacardCondition.getParsedAttributes(),
                     attributeFactory);
+            LOGGER.debug("%%%%% Done setting attributes {} on metacards {}", metacardCondition.getParsedAttributes(), metacards);
+
+            LOGGER.debug("%%%%% New Metacard Attributes");
+            for(Metacard metacard : newMetacards) {
+                LOGGER.debug("ID: {}", metacard.getId());
+                if(metacard.getAttribute("security.access-groups") != null) {
+                    LOGGER.debug("security.access-groups: {}",
+                            metacard.getAttribute("security.access-groups")
+                                    .getValues());
+                } else {
+                    LOGGER.debug("security.access-groups: {}",
+                            metacard.getAttribute("security.access-groups"));
+                }
+                if(metacard.getAttribute("description") != null) {
+                    LOGGER.debug("description: {}",
+                            metacard.getAttribute("description")
+                                    .getValue());
+                } else {
+                    LOGGER.debug("description: {}",
+                            metacard.getAttribute("description"));
+                }
+                if(metacard.getAttribute("metacard-tags") != null) {
+                    LOGGER.debug("metacard-tags: {}",
+                            metacard.getAttribute("metacard-tags")
+                                    .getValues());
+                } else {
+                    LOGGER.debug("metacard-tags: {}",
+                            metacard.getAttribute("metacard-tags"));
+                }
+            }
 
             return new CreateRequestImpl(newMetacards, request.getProperties());
         }

@@ -121,43 +121,46 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     private void apply(File file) throws Exception {
+        LOGGER.debug("##### Attempting to install file [{}].", file.getAbsoluteFile());
         String data;
         try (InputStream input = new FileInputStream(file)) {
             data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
-            LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
-        }
-        if (StringUtils.isEmpty(data)) {
-            LOGGER.debug("File is empty [{}]. Nothing to install.", file.getAbsolutePath());
-            return; /* nothing to install */
-        }
+            LOGGER.debug("##### Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
 
-        Outer outer;
-        try {
-            outer = JsonFactory.create()
-                    .readValue(data, Outer.class);
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Cannot parse json [" + file.getAbsolutePath() + "]",
-                    e);
-        }
+            if (StringUtils.isEmpty(data)) {
+                LOGGER.debug("File is empty [{}]. Nothing to install.", file.getAbsolutePath());
+                return; /* nothing to install */
+            }
+
+            Outer outer;
+            try {
+                outer = JsonFactory.create()
+                        .readValue(data, Outer.class);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException("Cannot parse json [" + file.getAbsolutePath() + "]",
+                        e);
+            }
 
         /* Must manually parse validators */
-        Map<String, Object> root = JsonFactory.create()
-                .parser()
-                .parseMap(data);
-        parseValidators(root, outer);
+            Map<String, Object> root = JsonFactory.create()
+                    .parser()
+                    .parseMap(data);
+            parseValidators(root, outer);
 
-        final String filename = file.getName();
-        final Changeset changeset = new Changeset();
-        changesetsByFile.put(filename, changeset);
+            final String filename = file.getName();
+            final Changeset changeset = new Changeset();
+            changesetsByFile.put(filename, changeset);
 
-        handleSection(changeset,
-                "Attribute Types",
-                outer.attributeTypes,
-                this::parseAttributeTypes);
-        handleSection(changeset, "Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
-        handleSection(changeset, "Validators", outer.validators, this::parseValidators);
-        handleSection(changeset, "Defaults", outer.defaults, this::parseDefaults);
-        handleSection(changeset, "Injections", outer.inject, this::parseInjections);
+            handleSection(changeset, "Attribute Types", outer.attributeTypes, this::parseAttributeTypes);
+            handleSection(changeset, "Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
+            handleSection(changeset, "Validators", outer.validators, this::parseValidators);
+            handleSection(changeset, "Defaults", outer.defaults, this::parseDefaults);
+            handleSection(changeset, "Injections", outer.inject, this::parseInjections);
+        } catch (Exception e) {
+            LOGGER.error("##### What just happened? I can't install file {}", file.getAbsoluteFile(), e);
+            throw e;
+        }
+
     }
 
     private <T> void handleSection(Changeset changeset, String sectionName, T sectionData,
