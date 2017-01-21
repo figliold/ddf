@@ -82,6 +82,7 @@ public class AdminConfig {
         if (!StringUtils.isEmpty(logLevel)) {
             properties.put(LOGGER_PREFIX + "ddf", logLevel);
             properties.put(LOGGER_PREFIX + "org.codice", logLevel);
+            properties.put(LOGGER_PREFIX + "org.apache.felix.fileinstall", logLevel);
         }
 
         logConfig.update(properties);

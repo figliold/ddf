@@ -116,6 +116,8 @@ public class ValidationParser implements ArtifactInstaller {
 
     @Override
     public boolean canHandle(File file) {
+        LOGGER.debug("##### canHandle file [{}]? {}", file.getAbsoluteFile(), file.getName()
+                .endsWith(".json"));
         return file.getName()
                 .endsWith(".json");
     }

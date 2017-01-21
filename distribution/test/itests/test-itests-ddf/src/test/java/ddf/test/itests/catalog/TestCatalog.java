@@ -168,6 +168,18 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Before
     public void setup() {
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
+        Path ddfHome = Paths.get(System.getProperty(DDF_HOME_PROPERTY));
+        LOGGER.debug("##### DDF HOME in setup: {}", ddfHome.toString());
+        Path fileInstallCfg = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
+                "etc",
+                "org.apache.felix.fileinstall-definitions.cfg");
+        try {
+            LOGGER.debug("##### Contents of {}:\n{}",
+                    fileInstallCfg.toString(),
+                    IOUtils.toString(new FileInputStream(fileInstallCfg.toFile()), StandardCharsets.UTF_8.name()));
+        } catch(Exception e) {
+            LOGGER.debug("##### Unable to get contents of file [{}]", fileInstallCfg.toString(), e);
+        }
     }
 
     @After
