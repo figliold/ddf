@@ -2385,7 +2385,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(30,
+            expect("Service to be available: " + MetacardType.class.getName()).within(600,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + newMetacardTypeName + ")"), not(empty()));
@@ -2450,7 +2450,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(30,
+            expect("Service to be available: " + MetacardType.class.getName()).within(600,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + customMetacardTypeName + ")"), not(empty()));
@@ -2515,7 +2515,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testDefaultValuesUpdate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(30,
+            expect("Service to be available: " + MetacardType.class.getName()).within(600,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + customMetacardTypeName + ")"), not(empty()));
@@ -2586,7 +2586,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testInjectAttributesOnCreate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+            expect("Injectable attributes to be registered").within(600, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
             return null;
@@ -2636,7 +2636,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+            expect("Injectable attributes to be registered").within(600, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(3));
             return null;
@@ -2751,7 +2751,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             LOGGER.debug("##### Ingesting definitions json file customtypedefinitions.json");
             ingestDefinitionJsonWithWaitCondition("customtypedefinitions.json", () -> {
-                expect("Service to be available: " + MetacardType.class.getName()).within(30,
+                expect("Service to be available: " + MetacardType.class.getName()).within(600,
                         TimeUnit.SECONDS)
                         .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                                 "(name=" + newMetacardTypeName + ")"), not(empty()));
