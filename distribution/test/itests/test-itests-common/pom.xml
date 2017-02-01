@@ -177,6 +177,7 @@
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Import-Package>
+                            org.apache.shiro.subject,
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>

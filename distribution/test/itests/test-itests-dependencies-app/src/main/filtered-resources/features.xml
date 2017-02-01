@@ -12,7 +12,10 @@
  *
  **/
 -->
-<features name="ddf-itest-dependencies-${project.version}">
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="ddf-itest-dependencies-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="ddf-itest-dependencies">
         <feature>third-party-dependencies</feature>
@@ -20,6 +23,8 @@
     </feature>
 
     <feature name="ddf-dependencies">
+        <feature prerequisite="true">platform-app</feature>
+        <feature prerequisite="true">admin-app</feature>
         <feature>catalog-core</feature>
 
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>

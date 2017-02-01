@@ -67,6 +67,7 @@ public class PaxExamRuleTest {
             return options(junitBundles(),
                     bundle("file:target/test-itests-common-" + System.getProperty("ddf.version")
                             + ".jar"),
+                    mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
                     wrappedBundle(mavenBundle("org.assertj", "assertj-core").versionAsInProject()));
         }
 
