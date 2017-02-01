@@ -15,6 +15,7 @@ package org.codice.ddf.itests.common;
 
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
+import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -308,11 +309,30 @@ public abstract class AbstractIntegrationTest {
         ddfHome = System.getProperty(DDF_HOME_PROPERTY);
         adminConfig = new AdminConfig(configAdmin);
 
+        /**
+         * The Service Manager Proxy runs all Service Manager commands as the system user.
+         * As a result, there is a dependency on security packages (such as shiro).
+         * To account for this dependency, we do an initial waitForAllBundles()
+         * to ensure that all bundles are active before we create the Service Manager
+         * Proxy.  Without this, the Service Manager Proxy would periodically attempt to use shiro
+         * and fail with a java.lang.NoClassDefFoundError: org/apache/shiro/subject/Subject
+         * since the bundle exporting shiro was not already up and running.
+         */
+        ServiceManager sm = new ServiceManagerImpl(metatype, adminConfig);
+
+        try {
+            sm.waitForAllBundles();
+        } catch (Exception e) {
+            String message = "Failed on initial waitForAllBundles() in PostTestConstruct.";
+            LOGGER.error(message);
+            fail(message);
+        }
+
         //This proxy runs the service manager as the system subject
         serviceManager =
                 (ServiceManager) Proxy.newProxyInstance(AbstractIntegrationTest.class.getClassLoader(),
                         ServiceManagerImpl.class.getInterfaces(),
-                        new ServiceManagerProxy(new ServiceManagerImpl(metatype, adminConfig)));
+                        new ServiceManagerProxy(sm));
 
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
         securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
