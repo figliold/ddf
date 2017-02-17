@@ -3719,6 +3719,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
     private SourceResponse queryXpathExists(String xpath) throws UnsupportedQueryException {
         Filter filter = filterBuilder.xpath(xpath)
                 .exists();
+        System.out.println("##### filter: " + filter.toString());
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         return sourceResponse;
     }
@@ -3767,6 +3768,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
                     .like()
                     .text(searchPhrase);
         }
+        LOGGER.error("##### filter: " + filter.toString());
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         return sourceResponse;
     }
@@ -6109,7 +6111,9 @@ public class SolrProviderTest extends SolrProviderTestCase {
      */
     @Test
     public void testDisableTextPathTrueLikeFilter() throws Exception {
+        LOGGER.error("##### start");
         prepareXPath(true);
+        LOGGER.error("##### end");
 
         queryXpathNegativeWithSearchPhrase("//comment", "Hurry, my lawn is going wild!");
     }

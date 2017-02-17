@@ -69,6 +69,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
         setMetadata("<foo>bar</foo>")
     }};
 
+//    SolrInputDocument solrDoc = new SolrInputDocument(new String[0])
     SolrInputDocument solrDoc = new SolrInputDocument()
 
     def "New resolver checks filter"() {

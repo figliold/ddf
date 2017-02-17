@@ -90,20 +90,23 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         String command = BACKUP_COMMAND + " --numToKeep " + numToKeep;
 
         // Run this three times to make sure only 2 are kept
+        System.out.println("pass 1; running command: " + command);
         console.runCommand(command);
-        Set<File> firstBackupFileSet = waitForBackupFilesToBeCreated(coreName, 1);
+        Set<File> firstBackupFileSet = waitForBackupFilesToBeCreated(coreName, 1, 1);
 
+        System.out.println("##### pass 2; running command: " + command);
         console.runCommand(command);
-        Set<File> secondBackupFileSet = waitForBackupFilesToBeCreated(coreName, 2);
+        Set<File> secondBackupFileSet = waitForBackupFilesToBeCreated(coreName, 2, 2);
         assertTrue("Unexpected backup files found",
                 secondBackupFileSet.containsAll(firstBackupFileSet));
 
+        System.out.println("##### pass 3; running command: " + command);
         console.runCommand(command);
 
         secondBackupFileSet.removeAll(firstBackupFileSet);
         Set<File> thirdBackupFileSet = waitForFirstFileToBeDeleted(coreName, firstBackupFileSet);
 
-        assertThat("Wrong number of backup files created", thirdBackupFileSet, hasSize(3));
+        assertThat("Wrong number of backup files created. Number of backups: [" + thirdBackupFileSet.size() + "]; Expected: [3].", thirdBackupFileSet, hasSize(3));
         assertTrue("Unexpected backup files found",
                 thirdBackupFileSet.containsAll(secondBackupFileSet));
     }
@@ -134,7 +137,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         });
     }
 
-    private Set<File> waitForBackupFilesToBeCreated(String coreName, final int numberOfFiles)
+    private Set<File> waitForBackupFilesToBeCreated(String coreName, final int numberOfFiles, int pass)
             throws InterruptedException {
         Set<File> backupFiles = waitFor(coreName, new Predicate<Set<File>>() {
             @Override
@@ -143,7 +146,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             }
         });
 
-        assertThat("Wrong number of backup files created", backupFiles, hasSize(numberOfFiles));
+        assertThat("Wrong number of backup files created on pass: [" + pass + "].  Found: " + backupFiles + ". Expected: [" + numberOfFiles + "].", backupFiles, hasSize(numberOfFiles));
         return backupFiles;
     }
 
@@ -152,10 +155,16 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
         File[] backupFiles;
 
+        System.out.println("list files in " + solrDir.toString());
         backupFiles = solrDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.contains("snapshot");
+                System.out.println("##### dir: " + dir.toString());
+                System.out.println("##### checking file: " + name);
+                // Only match on snapshot.<timestamp> files, filter out snapshot_metadata
+                boolean match = name.startsWith("snapshot.");
+                System.out.println("##### match: " + match);
+                return match;
             }
         });
 
@@ -166,6 +175,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         String home = System.getProperty(DDF_HOME_PROPERTY);
         File file = Paths.get(home + "/data/solr/" + coreName + "/data")
                 .toFile();
+        System.out.println("##### solr data path: " + file.toString());
         return file;
     }
 }

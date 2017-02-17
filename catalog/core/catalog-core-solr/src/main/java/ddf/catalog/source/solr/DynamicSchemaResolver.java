@@ -149,9 +149,16 @@ public class DynamicSchemaResolver {
 
     protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<>();
 
-    private Processor processor = new Processor(new Config());
+//    private Processor processor = new Processor(new Config());
+
+    private Processor processor;
 
     public DynamicSchemaResolver() {
+
+        Config config = new Config();
+
+        processor = new Processor(config);
+
         this.schemaFields = new SchemaFields();
 
         fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);

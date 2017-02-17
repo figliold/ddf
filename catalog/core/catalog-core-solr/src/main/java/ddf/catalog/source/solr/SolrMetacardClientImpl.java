@@ -432,6 +432,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     protected SolrInputDocument getSolrInputDocument(Metacard metacard)
             throws MetacardCreationException {
+//        SolrInputDocument solrInputDocument = new SolrInputDocument(new String[0]);
         SolrInputDocument solrInputDocument = new SolrInputDocument();
 
         resolver.addFields(metacard, solrInputDocument);

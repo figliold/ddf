@@ -84,6 +84,7 @@ public class PersistentStoreImpl implements PersistentStore {
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         //String createdDate = df.format(now);
 
+//        SolrInputDocument solrInputDocument = new SolrInputDocument(new String[0]);
         SolrInputDocument solrInputDocument = new SolrInputDocument();
         solrInputDocument.addField("createddate_tdt", now);
 

@@ -30,11 +30,35 @@ public class XpathQueryParser extends SolrQueryParser {
         this.parser = parser;
     }
 
+//    @Override
+//    protected Query getFieldQuery(String field, String queryText, boolean quoted)
+//            throws SyntaxError {
+//
+//        System.out.println("##### field: " + field);
+//        System.out.println("##### query text: " + queryText);
+//        System.out.println("##### quoted: " + quoted);
+// //       if (field.equals("xpath")) {
+//        if (field.equals("lux_xml")) {
+//            // post-filter with Saxon
+//            return new XpathFilterQuery(queryText);
+//        } else if (field.equals("xpath_index")) {
+//            // pre-filter with xpath index
+//            return getLuceneQuery(queryText);
+//        } else {
+//            // pass-through any non-XPath related fields
+//            return super.getFieldQuery(field, queryText, quoted);
+//        }
+//    }
+
     @Override
-    protected Query getFieldQuery(String field, String queryText, boolean quoted)
+    protected Query getFieldQuery(String field, String queryText, int slop)
             throws SyntaxError {
 
-        if (field.equals("xpath")) {
+        System.out.println("##### field: " + field);
+        System.out.println("##### query text: " + queryText);
+        System.out.println("##### slop: " + slop);
+               if (field.equals("xpath")) {
+//        if (field.equals("lux_xml")) {
             // post-filter with Saxon
             return new XpathFilterQuery(queryText);
         } else if (field.equals("xpath_index")) {
@@ -42,7 +66,7 @@ public class XpathQueryParser extends SolrQueryParser {
             return getLuceneQuery(queryText);
         } else {
             // pass-through any non-XPath related fields
-            return super.getFieldQuery(field, queryText, quoted);
+            return super.getFieldQuery(field, queryText, slop);
         }
     }
 

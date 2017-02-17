@@ -58,6 +58,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
 
     public static final String XPATH_FILTER_QUERY = "xpath";
+ //   public static final String XPATH_FILTER_QUERY = "lux_xml";
 
     public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 

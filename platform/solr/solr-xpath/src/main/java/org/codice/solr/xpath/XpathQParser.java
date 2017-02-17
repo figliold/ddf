@@ -34,8 +34,12 @@ public class XpathQParser extends QParser {
     @Override
     public Query parse() throws SyntaxError {
         String qstr = getString();
+        System.out.println("#####: qstr: " + qstr);
 
         String defaultField = getParam(CommonParams.DF);
+        System.out.println("##### defaultField: " + defaultField);
+        System.out.println("##### schema: " + getReq().getSchema().getSchemaName());
+        System.out.println("##### req: " + getReq().getJSON());
         if (defaultField == null) {
             defaultField = getReq().getSchema()
                     .getDefaultSearchFieldName();
