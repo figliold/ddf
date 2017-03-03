@@ -962,12 +962,12 @@
         <feature>platform-all</feature>
     </feature>
 
-    <feature name="platform-dependencies" version="${project.version}" install="manual" hidden="true">
+    <feature name="platform-dependencies" version="${project.version}" install="manual">
         <feature prerequisite="true">branding-api</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
-        <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
-        <bundle dependency="true">mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
+        <bundle>wrap:mvn:ch.qos.cal10n/cal10n-api/0.8.1</bundle>
+        <bundle>wrap:mvn:org.slf4j/slf4j-ext/${org.slf4j.version}$overwrite=merge&amp;Import-Package=ch.qos.cal10n,org.slf4j.spi;version=1.7.13,org.slf4j;version=1.7.13</bundle>
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle dependency="true">mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>

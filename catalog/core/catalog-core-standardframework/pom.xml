@@ -216,10 +216,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
         </dependency>
@@ -477,7 +473,6 @@
                             org.osgi.service.blueprint.container,
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
                             org.osgi.service.event,
-                            org.slf4j.ext,
                             org.slf4j;version="[1.6,2)",
                             org.w3c.dom,
                             org.xml.sax,

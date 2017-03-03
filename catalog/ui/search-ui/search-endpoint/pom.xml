@@ -165,10 +165,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
         </dependency>
@@ -329,7 +325,6 @@
                             org.osgi.service.blueprint.container,
                             org.osgi.service.event,
                             org.slf4j,
-                            org.slf4j.ext,
                             org.w3c.dom,
                             org.w3c.dom.bootstrap,
                             org.w3c.dom.ls,

@@ -30,10 +30,6 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -56,7 +52,6 @@
                             org.osgi.framework,
                             org.osgi.service.blueprint,
                             org.slf4j,
-                            org.slf4j.ext,
                             *
                         </Import-Package>
                     </instructions>
