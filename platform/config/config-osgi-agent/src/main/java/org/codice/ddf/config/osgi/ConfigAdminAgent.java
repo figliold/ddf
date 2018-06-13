@@ -14,16 +14,24 @@
 package org.codice.ddf.config.osgi;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.lang.reflect.Array;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMappingException;
@@ -32,8 +40,11 @@ import org.codice.ddf.config.mapping.ConfigMappingService;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -42,7 +53,8 @@ import org.osgi.service.cm.SynchronousConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigAdminAgent implements SynchronousConfigurationListener, ConfigMappingListener {
+public class ConfigAdminAgent
+    implements SynchronousConfigurationListener, ServiceListener, ConfigMappingListener {
   public static final String INSTANCE_KEY = "org.codice.ddf.config.instance";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigAdminAgent.class);
@@ -61,19 +73,63 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
   @SuppressWarnings("unused" /* called by blueprint */)
   public void init() {
     LOGGER.debug("ConfigAdminAgent:init()");
+    final BundleContext context = getBundleContext();
+
+    // start by registering a service listener
+    context.addServiceListener(this);
+    final Set<Optional<ConfigMapping>> processed = new HashSet<>();
+
     try {
-      configurations().forEach(this::updated);
-    } catch (InvalidSyntaxException
-        | ConfigMappingException
-        | IOException
-        | UncheckedIOException e) { // ignore
-      LOGGER.debug("failed to initialize existing configurations: {}", e, e);
+      // then process all existing config objects
+      configurations().map(this::updated).forEach(processed::add);
+    } catch (IOException | ConfigMappingException e) { // ignore
+      LOGGER.error("failed to initialize existing config objects: {}", e.getMessage());
+      LOGGER.debug("initialization failure: {}", e, e);
+    }
+    try {
+      // finally process all registered services for the PIDs they identify
+      ConfigAdminAgent.serviceReferences(context)
+          .flatMap(ConfigAdminAgent::servicePids)
+          .map(mapper::getMapping)
+          .filter(m -> !processed.contains(m)) // filter out those we already processed above
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .forEach(this::updated);
+    } catch (ConfigMappingException e) { // ignore
+      LOGGER.error("failed to initialize registered services: {}", e.getMessage());
+      LOGGER.debug("initialization failure: {}", e, e);
+    }
+  }
+
+  @SuppressWarnings("unused" /* called by blueprint */)
+  public void close() {
+    LOGGER.debug("ConfigAdminAgent::close()");
+    final BundleContext context = getBundleContext();
+
+    context.removeServiceListener(this);
+  }
+
+  @Override
+  public void serviceChanged(ServiceEvent event) {
+    final ServiceReference<?> ref = event.getServiceReference();
+    final int type = event.getType();
+
+    LOGGER.debug("ConfigAdminAgent::serviceChanged() - type = [{}], service = [{}]", type, ref);
+
+    if ((type == ServiceEvent.REGISTERED) || (type == ServiceEvent.MODIFIED)) {
+      ConfigAdminAgent.servicePids(ref)
+          .map(mapper::getMapping)
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .forEach(this::updated);
     }
   }
 
   @Override
   public void configurationEvent(ConfigurationEvent event) {
     LOGGER.debug("ConfigAdminAgent:configurationEvent({})", event);
+    final String pid = event.getPid();
+
     try {
       switch (event.getType()) {
         case ConfigurationEvent.CM_UPDATED:
@@ -83,16 +139,14 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
           getConfiguration(cfgAdmin, event.getPid()).ifPresent(this::updated);
           break;
         case ConfigurationEvent.CM_DELETED:
-          cache.remove(event.getPid());
+          cache.remove(pid);
           return;
         default:
           return;
       }
-    } catch (InvalidSyntaxException
-        | ConfigMappingException
-        | IOException
-        | UncheckedIOException e) { // ignore
-      LOGGER.debug("failed to process configuration event: {}", e, e);
+    } catch (InvalidSyntaxException | IOException | ConfigMappingException e) { // ignore
+      LOGGER.warn("failed to process event for config object '{}': {}", pid, e.getMessage());
+      LOGGER.debug("config event failure: {}", e, e);
     }
   }
 
@@ -145,28 +199,26 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
           // location as null to make sure it is bound to the first bundles that registers the
           // managed service factory
           cfg = configAdmin.createFactoryConfiguration(pid, null);
-          LOGGER.debug(
-              "created a new managed service factory for '{}-{}' as {}",
-              pid,
-              instance,
-              cfg.getPid());
+          LOGGER.debug("created new config object '{}-{}' as {}", pid, instance, cfg.getPid());
         }
       } else {
         // get or create the first version
         // location as null to make sure it is bound to the first bundles that registers the
         // managed service
         cfg = configAdmin.getConfiguration(pid, null);
+        LOGGER.debug("created/updated config object '{}'", pid);
       }
       updated(cfg, mapping);
-    } catch (InvalidSyntaxException
-        | ConfigMappingException
-        | IOException
-        | UncheckedIOException e) {
-      LOGGER.debug("failed to process mapping update: {}", e, e);
+    } catch (InvalidSyntaxException | ConfigMappingException | IOException e) {
+      LOGGER.warn(
+          "failed to process config mapping update for config object '{}': {}",
+          mapping.getId(),
+          e.getMessage());
+      LOGGER.debug("config mapping update failure: {}", e, e);
     }
   }
 
-  private void updated(Configuration cfg) {
+  private Optional<ConfigMapping> updated(Configuration cfg) {
     LOGGER.debug("ConfigAdminAgent:updated({})", cfg);
     final String factoryPid = cfg.getFactoryPid();
     final Optional<ConfigMapping> mapping;
@@ -182,14 +234,14 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
         // handled
         if (mapper.getMapping(factoryPid).isPresent()) {
           LOGGER.error(
-              "unable to map managed service factory [{}]; missing instance from config object [{}]",
+              "unable to map managed service factory '{}'; missing instance from config object '{}'",
               factoryPid,
               pid);
         } else {
           LOGGER.debug(
               "unknown managed service factory; missing instance from config object [{}]", pid);
         }
-        return;
+        return Optional.empty();
       } else {
         LOGGER.debug(
             "found instance id from config object [{}]; handling it as [{}-{}]",
@@ -202,40 +254,52 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
       mapping = mapper.getMapping(pid);
     }
     mapping.ifPresent(m -> updated(cfg, m));
+    return mapping;
   }
 
   private void updated(Configuration cfg, ConfigMapping mapping) {
     LOGGER.debug("ConfigAdminAgent:updated({}, {})", cfg, mapping);
-    final Dictionary<String, Object> properties = ConfigAdminAgent.getProperties(cfg);
-    final String instance = mapping.getId().getInstance().orElse(null);
-
-    // compute the new mapping values
-    mapping.resolve().forEach(properties::put);
-    // keep the instance up to date
-    if (instance != null) {
-      properties.put(ConfigAdminAgent.INSTANCE_KEY, instance);
-    } else {
-      properties.remove(ConfigAdminAgent.INSTANCE_KEY);
-    }
-    // only update configAdmin if the dictionary content has changed
     final String pid = cfg.getPid();
-    final Dictionary<String, Object> cachedProperties = cache.get(pid);
 
-    if ((cachedProperties == null) || !ConfigAdminAgent.equals(cachedProperties, properties)) {
-      LOGGER.debug("updating config [{}] in configAdmin with: {}", pid, properties);
-      Dictionary<String, Object> old = null;
+    try {
+      final Dictionary<String, Object> properties = ConfigAdminAgent.getProperties(cfg);
+      final String instance = mapping.getId().getInstance().orElse(null);
 
-      try {
-        old = cache.put(pid, properties);
-        cfg.update(properties);
-      } catch (IOException e) {
-        if (old == null) {
-          cache.remove(pid);
-        } else {
-          cache.put(pid, old);
-        }
-        throw new UncheckedIOException(e);
+      // compute the new mapping values
+      mapping.resolve().forEach(properties::put);
+      // keep the instance up to date
+      if (instance != null) {
+        properties.put(ConfigAdminAgent.INSTANCE_KEY, instance);
+      } else {
+        properties.remove(ConfigAdminAgent.INSTANCE_KEY);
       }
+      // only update configAdmin if the dictionary content has changed
+      final Dictionary<String, Object> cachedProperties = cache.get(pid);
+
+      if ((cachedProperties == null) || !ConfigAdminAgent.equals(cachedProperties, properties)) {
+        LOGGER.debug("updating config [{}] in config admin with: {}", pid, properties);
+        update(cfg, properties);
+      }
+    } catch (IOException | ConfigMappingException e) {
+      LOGGER.error("failed to update config object '{}': {}", pid, e.getMessage());
+      LOGGER.debug("config update failure", e);
+    }
+  }
+
+  private void update(Configuration cfg, Dictionary<String, Object> properties) throws IOException {
+    final String pid = cfg.getPid();
+    Dictionary<String, Object> old = null;
+
+    try {
+      old = cache.put(pid, properties);
+      cfg.update(properties);
+    } catch (IOException e) {
+      if (old == null) {
+        cache.remove(pid);
+      } else {
+        cache.put(pid, old);
+      }
+      throw e;
     }
   }
 
@@ -249,10 +313,16 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
     return ArrayUtils.isNotEmpty(configs) ? Optional.of(configs[0]) : Optional.empty();
   }
 
-  private Stream<Configuration> configurations() throws InvalidSyntaxException, IOException {
-    final Configuration[] configurations = configAdmin.listConfigurations(null);
+  private Stream<Configuration> configurations() throws IOException {
+    try {
+      final Configuration[] configurations = configAdmin.listConfigurations(null);
 
-    return (configurations != null) ? Stream.of(configurations) : Stream.empty();
+      return (configurations != null) ? Stream.of(configurations) : Stream.empty();
+    } catch (InvalidSyntaxException e) { // should never happen
+      LOGGER.error("failed to retrieved existing configurations: {}", e.getMessage());
+      LOGGER.debug("configuration retrieval failure: {}", e, e);
+      return Stream.empty();
+    }
   }
 
   private <S> S getService(ServiceReference<S> serviceReference) {
@@ -285,5 +355,57 @@ public class ConfigAdminAgent implements SynchronousConfigurationListener, Confi
         .replaceAll("[)]", "\\\\)")
         .replaceAll("[=]", "\\\\=")
         .replaceAll("[\\*]", "\\\\*");
+  }
+
+  private static Stream<ServiceReference<?>> serviceReferences(BundleContext context) {
+    try {
+      final ServiceReference<?>[] refs = context.getServiceReferences((String) null, null);
+
+      return (refs != null) ? Stream.of(refs) : Stream.empty();
+    } catch (InvalidSyntaxException e) { // should never happen
+      LOGGER.error("failed to retrieved existing services: {}", e.getMessage());
+      LOGGER.debug("service retrieval failure: {}", e, e);
+      return Stream.empty();
+    }
+  }
+
+  private static Stream<String> servicePids(ServiceReference<?> ref) {
+    final Object prop = ref.getProperty(Constants.SERVICE_PID);
+
+    if (prop instanceof String) {
+      return Stream.of((String) prop);
+    } else if (prop instanceof Collection) {
+      return ((Collection<?>) prop).stream().map(String::valueOf);
+    } else if ((prop != null) && prop.getClass().isArray()) {
+      final int length = Array.getLength(prop);
+
+      return StreamSupport.stream(
+          Spliterators.spliterator(
+              new Iterator<String>() {
+                private int i = 0;
+
+                @Override
+                public boolean hasNext() {
+                  return i < length;
+                }
+
+                @Override
+                public String next() {
+                  if (!hasNext()) {
+                    throw new NoSuchElementException();
+                  }
+                  return String.valueOf(Array.get(prop, i++));
+                }
+
+                @Override
+                public void remove() {
+                  throw new UnsupportedOperationException();
+                }
+              },
+              length,
+              Spliterator.ORDERED),
+          false);
+    } // else - unsupported type or null so return empty stream
+    return Stream.empty();
   }
 }

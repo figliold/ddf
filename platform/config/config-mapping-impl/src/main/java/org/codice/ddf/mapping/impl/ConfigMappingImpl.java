@@ -88,6 +88,21 @@ public class ConfigMappingImpl implements ConfigMapping {
   }
 
   @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof ConfigMappingImpl) {
+      return id.equals(((ConfigMappingImpl) obj).id);
+    }
+    return false;
+  }
+
+  @Override
   public String toString() {
     return String.format("ConfigMappingImpl[%s, providers=%s]", id, providers);
   }

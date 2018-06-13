@@ -33,19 +33,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Monitors OSGI bundles in order to locate configuration mapping rules registered as resources. */
-public class ConfigMappingBundleMonitor {
+public class ConfigMappingBundleMonitor implements SynchronousBundleListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMappingBundleMonitor.class);
 
   @SuppressWarnings("unused" /* called by blueprint */)
   public void init() {
     LOGGER.debug("ConfigMappingServiceImpl::init()");
-    // start by registering a bundle listener
     final BundleContext context = getBundleContext();
 
-    context.addBundleListener((SynchronousBundleListener) this::bundleChanged);
+    // start by registering a bundle listener
+    context.addBundleListener(this);
+    // then process all existing bundles
     Stream.of(context.getBundles())
         .filter(ConfigMappingBundleMonitor::isActiveOrStarting)
-        .forEach(this::loadMappings);
+        .forEach(this::loadAndRegisterMappings);
+  }
+
+  @SuppressWarnings("unused" /* called by blueprint */)
+  public void close() {
+    LOGGER.debug("ConfigMappingServiceImpl::close()");
+    final BundleContext context = getBundleContext();
+
+    context.removeBundleListener(this);
   }
 
   BundleContext getBundleContext() {
@@ -57,7 +66,8 @@ public class ConfigMappingBundleMonitor {
     throw new IllegalStateException("missing bundle for ConfigMappingBundleMonitor");
   }
 
-  private void bundleChanged(BundleEvent event) {
+  @Override
+  public void bundleChanged(BundleEvent event) {
     final Bundle bundle = event.getBundle();
     final String location = bundle.getLocation();
     final int state = bundle.getState();
@@ -69,14 +79,14 @@ public class ConfigMappingBundleMonitor {
         location,
         state);
     if (type == BundleEvent.STARTING) {
-      loadMappings(bundle);
+      loadAndRegisterMappings(bundle);
     }
   }
 
-  private void loadMappings(Bundle bundle) {
+  private void loadAndRegisterMappings(Bundle bundle) {
     final String location = bundle.getLocation();
 
-    LOGGER.debug("ConfigMappingServiceImpl::loadMappings({})", location);
+    LOGGER.debug("ConfigMappingServiceImpl::loadAndRegisterMappings({})", location);
     // check if we can find mappings resources for this bundle
     final Enumeration<URL> urls =
         bundle.findEntries(ConfigMappingService.MAPPINGS_DOCUMENTS_LOCATION, "*.xml", false);
@@ -91,17 +101,27 @@ public class ConfigMappingBundleMonitor {
     final String bundleName = headers.get("Bundle-Name");
 
     while (urls.hasMoreElements()) {
+      final DictionaryMap<String, Object> props = new DictionaryMap<>(8);
+      final GroovyConfigMappingProvider provider;
       final URL url = urls.nextElement();
 
       try {
-        final GroovyConfigMappingProvider provider = reader.parse(url);
-        final DictionaryMap<String, Object> props = new DictionaryMap<>(8);
-
+        provider = reader.parse(url);
         props.put(
             Constants.SERVICE_DESCRIPTION,
             String.format("[%s] Groovy Config Mapping Provider", bundleName));
         props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
         props.put(Constants.SERVICE_RANKING, provider.getRank());
+      } catch (IOException e) {
+        LOGGER.error(
+            "failed to load config mapping resource '{}' from bundle '{}': {}",
+            url,
+            location,
+            e.getMessage());
+        LOGGER.debug("loading failure: {}", e, e);
+        continue;
+      }
+      try {
         // register the provider as a service of that bundle so it gets automatically deregister
         // when the bundle is stopped
         LOGGER.debug(
@@ -109,9 +129,13 @@ public class ConfigMappingBundleMonitor {
             url,
             location);
         context.registerService(ConfigMappingProvider.class, provider, props);
-      } catch (IOException e) {
+      } catch (IllegalStateException e) {
         LOGGER.error(
-            "failed to load config mapping resource [{}] from bundle [{}]: {}", url, location, e);
+            "failed to register config mapping provider service for resource '{}' in bundle '{}': {}",
+            url,
+            location,
+            e.getMessage());
+        LOGGER.debug("registration failure: {}", e, e);
       }
     }
   }

@@ -48,9 +48,8 @@ public interface ConfigMappingInformation extends ConfigMappingProvider {
    * Gets a ranking priority for this provider (see {@link ConfigMappingProvider} class description
    * for more details).
    *
-   * <p><i>Note:</i> The provider's rank is not expected to change during the life of this
-   * provider unless the provider is first unbound from the {@link ConfigMappingService} and then
-   * rebound.
+   * <p><i>Note:</i> The provider's rank is not expected to change during the life of this provider
+   * unless the provider is first unbound from the {@link ConfigMappingService} and then rebound.
    *
    * @return this provider's ranking priority
    */
@@ -60,10 +59,10 @@ public interface ConfigMappingInformation extends ConfigMappingProvider {
    * Checks if this provider can provide mapped dictionaries for a given configuration mapping or
    * for all its instances if the identifier doesn't identify a specific instance.
    *
-   * <p><i>Note:</i> This should be equivalent to finding {@link Id#getName()} in the array of
-   * names returned by {@link #getNames()} and if {@link Id#getInstance()} is not present, an empty
-   * array returned by {@link #getInstances()}. if {@link Id#getInstance()} is present, then the
-   * instance should be part of the array of instances returned by {@link #getInstances()}.
+   * <p><i>Note:</i> This should be equivalent to finding {@link Id#getName()} in the array of names
+   * returned by {@link #getNames()} and if {@link Id#getInstance()} is not present, an empty array
+   * returned by {@link #getInstances()}. if {@link Id#getInstance()} is present, then the instance
+   * should be part of the array of instances returned by {@link #getInstances()}.
    *
    * @param id the name of the config mapping to check if this provider can provide for
    * @return <code>true</code> if this provider can provide mapped dictionaries for the specified

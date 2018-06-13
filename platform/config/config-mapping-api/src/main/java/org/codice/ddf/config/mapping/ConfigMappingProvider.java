@@ -30,9 +30,9 @@ import org.codice.ddf.config.Config;
  * provider was first bound to the {@link ConfigMappingService} directly will be considered to have
  * a higher priority.
  *
- * <p>For providers registered as OSGI services, service ranking will be used to establish
- * priority for mapped properties. When a tie in ranking exist, whichever service that was first
- * registered with the service registry will be considered to have a higher priority.
+ * <p>For providers registered as OSGI services, service ranking will be used to establish priority
+ * for mapped properties. When a tie in ranking exist, whichever service that was first registered
+ * with the service registry will be considered to have a higher priority.
  */
 public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider> {
   /**

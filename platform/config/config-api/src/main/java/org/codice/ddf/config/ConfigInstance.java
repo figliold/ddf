@@ -13,12 +13,12 @@
  */
 package org.codice.ddf.config;
 
-/** Base interface for all configuration classes. */
-public interface Config {
+/** Base interface for all configuration classes that can have multiple instances. */
+public interface ConfigInstance extends Config {
   /**
-   * Gets the version for this configuration.
+   * Gets the unique instance identifier.
    *
-   * @return the version for this configuration
+   * @return the unique instance identifier for this configuration
    */
-  public int getVersion();
+  public String getId();
 }
