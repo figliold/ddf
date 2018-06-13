@@ -24,6 +24,7 @@ import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
+import org.codice.ddf.config.mapping.ConfigMappingProvider;
 
 /** Reader for Groovy-based rule definitions for mapped configuration properties. */
 // FYI, Boon has a bug when dealing with streams where it stops reading the stream at whatever is
@@ -43,7 +44,7 @@ public class GroovyConfigMappingReader {
    * @return a corresponding config mapping provider
    * @throws IOException if an I/O error occurred while parsing the document
    */
-  public GroovyConfigMappingProvider parse(URL url) throws IOException {
+  public ConfigMappingProvider parse(URL url) throws IOException {
     InputStream is = null;
 
     try {
@@ -62,7 +63,7 @@ public class GroovyConfigMappingReader {
    * @throws IOException if an I/O error occurred while parsing the document
    */
   @SuppressWarnings("squid:S2093" /* we do not want to fail if the input stream cannot be closed */)
-  public GroovyConfigMappingProvider parse(File file) throws IOException {
+  public ConfigMappingProvider parse(File file) throws IOException {
     InputStream is = null;
 
     try {
@@ -82,7 +83,7 @@ public class GroovyConfigMappingReader {
    * @return a corresponding config mapping provider
    * @throws IOException if an I/O error occurred while parsing the document
    */
-  public GroovyConfigMappingProvider parse(InputStream is) throws IOException {
+  public ConfigMappingProvider parse(InputStream is) throws IOException {
     return parse(IOUtils.toString(is, StandardCharsets.UTF_8));
   }
 
@@ -93,7 +94,7 @@ public class GroovyConfigMappingReader {
    * @return a corresponding config mapping provider
    * @throws IOException if an I/O error occurred while parsing the document
    */
-  public GroovyConfigMappingProvider parse(String json) throws IOException {
+  public ConfigMappingProvider parse(String json) throws IOException {
     return GroovyConfigMappingReader.MAPPER.fromJson(json, GroovyConfigMappingProvider.class);
   }
 }

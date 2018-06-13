@@ -13,12 +13,13 @@
  */
 package org.codice.ddf.mapping.impl;
 
+import java.io.Closeable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping.Id;
 import org.codice.ddf.config.mapping.ConfigMappingException;
 import org.codice.ddf.config.mapping.ConfigMappingInformation;
@@ -27,7 +28,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-public class OSGIConfigMappingProvider implements ConfigMappingInformation {
+public class OSGIConfigMappingProvider implements ConfigMappingInformation, Closeable {
   private final BundleContext context;
 
   private final Object lock = new Object();
@@ -52,7 +53,8 @@ public class OSGIConfigMappingProvider implements ConfigMappingInformation {
     this.rank = OSGIConfigMappingProvider.getInteger(ref, Constants.SERVICE_RANKING);
   }
 
-  void close() {
+  @Override
+  public void close() {
     context.ungetService(reference);
   }
 
@@ -68,20 +70,6 @@ public class OSGIConfigMappingProvider implements ConfigMappingInformation {
       instances.clear();
       instances.addAll(newInstances);
       this.rank = OSGIConfigMappingProvider.getInteger(reference, Constants.SERVICE_RANKING);
-    }
-  }
-
-  @Override
-  public String[] getNames() {
-    synchronized (lock) {
-      return names.toArray(new String[names.size()]);
-    }
-  }
-
-  @Override
-  public String[] getInstances() {
-    synchronized (lock) {
-      return instances.toArray(new String[instances.size()]);
     }
   }
 
@@ -115,7 +103,7 @@ public class OSGIConfigMappingProvider implements ConfigMappingInformation {
   }
 
   @Override
-  public Map<String, Object> provide(Id id, Config config) throws ConfigMappingException {
+  public Map<String, Object> provide(Id id, ConfigService config) throws ConfigMappingException {
     return provider.provide(id, config);
   }
 

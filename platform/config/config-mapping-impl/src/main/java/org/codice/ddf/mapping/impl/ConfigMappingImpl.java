@@ -20,26 +20,24 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMappingException;
-import org.codice.ddf.config.mapping.ConfigMappingInformation;
+import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConfigMappingImpl implements ConfigMapping {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMappingImpl.class);
 
-  private static final String DEPENDENT_CONFIGS = "dependent.configs";
-
-  private final Config config;
+  private final ConfigService config;
 
   private final ConfigMapping.Id id;
 
-  private final SortedSet<ConfigMappingInformation> providers;
+  private final SortedSet<ConfigMappingProvider> providers;
 
   public ConfigMappingImpl(
-      Config config, ConfigMapping.Id id, Stream<ConfigMappingInformation> providers) {
+      ConfigService config, ConfigMapping.Id id, Stream<ConfigMappingProvider> providers) {
     this.config = config;
     this.id = id;
     this.providers =
@@ -61,14 +59,14 @@ public class ConfigMappingImpl implements ConfigMapping {
     return !providers.isEmpty();
   }
 
-  public boolean bind(ConfigMappingInformation provider) {
+  public boolean bind(ConfigMappingProvider provider) {
     final boolean bound = providers.add(provider);
 
     LOGGER.debug("ConfigMappingImpl[{}].bind({}) = {}", id, provider, bound);
     return bound;
   }
 
-  public boolean unbind(ConfigMappingInformation provider) {
+  public boolean unbind(ConfigMappingProvider provider) {
     final boolean unbound = providers.remove(provider);
 
     LOGGER.debug("ConfigMappingImpl[{}].unbind({}) = {}", id, provider, unbound);

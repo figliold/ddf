@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.config.osgi;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.security.AccessController;
@@ -54,7 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConfigAdminAgent
-    implements SynchronousConfigurationListener, ServiceListener, ConfigMappingListener {
+    implements SynchronousConfigurationListener, ServiceListener, ConfigMappingListener, Closeable {
   public static final String INSTANCE_KEY = "org.codice.ddf.config.instance";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigAdminAgent.class);
@@ -101,7 +102,7 @@ public class ConfigAdminAgent
     }
   }
 
-  @SuppressWarnings("unused" /* called by blueprint */)
+  @Override
   public void close() {
     LOGGER.debug("ConfigAdminAgent::close()");
     final BundleContext context = getBundleContext();

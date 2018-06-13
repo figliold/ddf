@@ -18,8 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.Binding;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.GroovyShell;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.codehaus.groovy.control.CompilationFailedException;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMapping.Id;
 import org.codice.ddf.config.mapping.ConfigMappingException;
@@ -36,7 +34,7 @@ import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroovyConfigMappingProvider implements ConfigMappingInformation {
+class GroovyConfigMappingProvider implements ConfigMappingProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(GroovyConfigMappingProvider.class);
 
   private final Set<String> names;
@@ -54,7 +52,7 @@ public class GroovyConfigMappingProvider implements ConfigMappingInformation {
    * up initializing the lists with empty collections. This will be helpful, for example, in case
    * where no instance ids were serialized in which case Boon would not be setting this attribute.
    */
-  public GroovyConfigMappingProvider() {
+  GroovyConfigMappingProvider() {
     this.names = new HashSet<>();
     this.instances = new HashSet<>();
     this.rank = 0;
@@ -68,16 +66,6 @@ public class GroovyConfigMappingProvider implements ConfigMappingInformation {
     this.instances = instance;
     this.rank = rank;
     this.rules = rules;
-  }
-
-  @Override
-  public String[] getNames() {
-    return names.toArray(new String[names.size()]);
-  }
-
-  @Override
-  public String[] getInstances() {
-    return instances.toArray(new String[instances.size()]);
   }
 
   @Override
@@ -106,7 +94,7 @@ public class GroovyConfigMappingProvider implements ConfigMappingInformation {
   }
 
   @Override
-  public Map<String, Object> provide(ConfigMapping.Id id, Config config)
+  public Map<String, Object> provide(ConfigMapping.Id id, ConfigService config)
       throws ConfigMappingException {
     LOGGER.debug("GroovyConfigMappingProvider::provide({}, {})", id, config);
     final Map<String, Object> bindings =
@@ -146,10 +134,6 @@ public class GroovyConfigMappingProvider implements ConfigMappingInformation {
     }
     LOGGER.debug("provided properties for config mapping [{}] = {}", id, properties);
     return properties;
-  }
-
-  public void reload(File file) throws IOException {
-    throw new IOException("not implemented yet");
   }
 
   @Override

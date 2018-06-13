@@ -22,10 +22,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
-import org.codice.ddf.config.mapping.ConfigMappingInformation;
 import org.codice.ddf.config.mapping.ConfigMappingListener;
+import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.codice.ddf.config.mapping.ConfigMappingService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -37,22 +37,22 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
   // , ConfigAbstractionListener
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMappingServiceImpl.class);
 
-  private final Config config;
+  private final ConfigService config;
 
-  private final SortedSet<ConfigMappingInformation> providers =
+  private final SortedSet<ConfigMappingProvider> providers =
       Collections.synchronizedSortedSet(new TreeSet<>());
 
   private final List<ConfigMappingListener> listeners;
 
   private final Map<ConfigMapping.Id, ConfigMappingImpl> mappings = new ConcurrentHashMap<>();
 
-  public ConfigMappingServiceImpl(Config config, List<ConfigMappingListener> listeners) {
+  public ConfigMappingServiceImpl(ConfigService config, List<ConfigMappingListener> listeners) {
     this.config = config;
     this.listeners = listeners;
   }
 
   @Override
-  public boolean bind(ConfigMappingInformation provider) {
+  public boolean bind(ConfigMappingProvider provider) {
     if (providers.add(provider)) {
       LOGGER.debug("bound provider: {}", provider);
       // find config mapping that needs to be updated
@@ -67,7 +67,7 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
   }
 
   @Override
-  public boolean unbind(ConfigMappingInformation provider) {
+  public boolean unbind(ConfigMappingProvider provider) {
     if (providers.remove(provider)) {
       LOGGER.debug("unbound provider: {}", provider);
       // find config mapping that needs to be updated
@@ -109,13 +109,13 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
     return new ConfigMappingImpl(config, id, providers.stream().filter(p -> p.canProvideFor(id)));
   }
 
-  private void bind(ConfigMappingInformation provider, ConfigMappingImpl mapping) {
+  private void bind(ConfigMappingProvider provider, ConfigMappingImpl mapping) {
     if (mapping.bind(provider)) {
       notifyUpdated(mapping);
     }
   }
 
-  private void unbind(ConfigMappingInformation provider, ConfigMappingImpl mapping) {
+  private void unbind(ConfigMappingProvider provider, ConfigMappingImpl mapping) {
     if (mapping.unbind(provider)) {
       if (mapping.isAvailable()) {
         notifyUpdated(mapping);

@@ -14,7 +14,7 @@
 package org.codice.ddf.config.mapping;
 
 import java.util.Map;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 
 /**
  * Provides access to mapped configuration properties for either a configuration mapping or for a
@@ -52,6 +52,30 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
   public static final String MAPPING_INSTANCE = "mapping.instance";
 
   /**
+   * Gets a ranking priority for this provider (see class description for more details).
+   *
+   * <p><i>Note:</i> The provider's rank is not expected to change during the life of this provider
+   * unless the provider is first unbound from the {@link ConfigMappingService} and then rebound.
+   *
+   * @return this provider's ranking priority
+   */
+  public int getRank();
+
+  /**
+   * Checks if this provider can provide mapped dictionaries for a given configuration mapping or
+   * for all its instances if the identifier doesn't identify a specific instance.
+   *
+   * <p><i>Note:</i> A provider is expected not to change which configuration mappings it provides
+   * for unless the provider is first unbound from the {@link ConfigMappingService} and then
+   * rebound. Rebinding a provider will re-asses which config mapping is impacted by this change.
+   *
+   * @param id the name of the config mapping to check if this provider can provide for
+   * @return <code>true</code> if this provider can provide mapped dictionaries for the specified
+   *     config mapping or for all its instances; <code>false</code> otherwise
+   */
+  public boolean canProvideFor(ConfigMapping.Id id);
+
+  /**
    * Provides the mapped dictionary for a given configuration mapping.
    *
    * @param id the unique config mapping id for the mapped properties to provide
@@ -60,7 +84,7 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    *     re-evaluating any internal rules defined
    * @throws ConfigMappingException if a failure occurred while resolving this config mapping
    */
-  public Map<String, Object> provide(ConfigMapping.Id id, Config config)
+  public Map<String, Object> provide(ConfigMapping.Id id, ConfigService config)
       throws ConfigMappingException;
 
   /**

@@ -29,7 +29,7 @@ public interface ConfigMappingService {
    * @param provider the provider to be bound
    * @return <code>true</code> if the provider was bound; <code>false</code> if it was already bound
    */
-  public boolean bind(ConfigMappingInformation provider);
+  public boolean bind(ConfigMappingProvider provider);
 
   /**
    * Unbinds a provider from this mapping service.
@@ -38,7 +38,7 @@ public interface ConfigMappingService {
    * @return <code>true</code> if the provider was unbound; <code>false</code> if it wasn't already
    *     bound
    */
-  public boolean unbind(ConfigMappingInformation provider);
+  public boolean unbind(ConfigMappingProvider provider);
 
   /**
    * Gets a configuration mapping given its name.

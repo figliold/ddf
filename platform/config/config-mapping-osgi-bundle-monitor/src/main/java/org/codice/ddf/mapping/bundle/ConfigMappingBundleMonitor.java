@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.mapping.bundle;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -20,7 +21,6 @@ import java.util.Enumeration;
 import java.util.stream.Stream;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.codice.ddf.config.mapping.ConfigMappingService;
-import org.codice.ddf.config.mapping.groovy.GroovyConfigMappingProvider;
 import org.codice.ddf.config.mapping.groovy.GroovyConfigMappingReader;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.Bundle;
@@ -33,8 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Monitors OSGI bundles in order to locate configuration mapping rules registered as resources. */
-public class ConfigMappingBundleMonitor implements SynchronousBundleListener {
+public class ConfigMappingBundleMonitor implements SynchronousBundleListener, Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMappingBundleMonitor.class);
+
+  private final GroovyConfigMappingReader reader = new GroovyConfigMappingReader();
 
   @SuppressWarnings("unused" /* called by blueprint */)
   public void init() {
@@ -49,7 +51,7 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener {
         .forEach(this::loadAndRegisterMappings);
   }
 
-  @SuppressWarnings("unused" /* called by blueprint */)
+  @Override
   public void close() {
     LOGGER.debug("ConfigMappingServiceImpl::close()");
     final BundleContext context = getBundleContext();
@@ -95,14 +97,13 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener {
       LOGGER.debug("no mapping documents found in bundle: {}", bundle.getLocation());
       return;
     }
-    final GroovyConfigMappingReader reader = new GroovyConfigMappingReader();
     final BundleContext context = bundle.getBundleContext();
     final Dictionary<String, String> headers = bundle.getHeaders();
     final String bundleName = headers.get("Bundle-Name");
 
     while (urls.hasMoreElements()) {
       final DictionaryMap<String, Object> props = new DictionaryMap<>(8);
-      final GroovyConfigMappingProvider provider;
+      final ConfigMappingProvider provider;
       final URL url = urls.nextElement();
 
       try {

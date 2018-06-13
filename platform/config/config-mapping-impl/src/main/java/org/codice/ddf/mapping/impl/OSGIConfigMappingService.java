@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.mapping.impl;
 
+import java.io.Closeable;
 import java.util.List;
-import org.codice.ddf.config.Config;
+import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMappingListener;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.osgi.framework.ServiceReference;
@@ -23,12 +24,12 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OSGIConfigMappingService extends ConfigMappingServiceImpl {
+public class OSGIConfigMappingService extends ConfigMappingServiceImpl implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(OSGIConfigMappingService.class);
 
   private final ServiceTracker<ConfigMappingProvider, OSGIConfigMappingProvider> tracker;
 
-  public OSGIConfigMappingService(Config config, List<ConfigMappingListener> listeners) {
+  public OSGIConfigMappingService(ConfigService config, List<ConfigMappingListener> listeners) {
     super(config, listeners);
     this.tracker =
         new ServiceTracker<>(getBundleContext(), ConfigMappingProvider.class, new Customizer());
@@ -40,7 +41,7 @@ public class OSGIConfigMappingService extends ConfigMappingServiceImpl {
     tracker.open();
   }
 
-  @SuppressWarnings("unused" /* called by blueprint */)
+  @Override
   public void close() {
     LOGGER.debug("OSGIConfigMappingService:close()");
     tracker.close();
