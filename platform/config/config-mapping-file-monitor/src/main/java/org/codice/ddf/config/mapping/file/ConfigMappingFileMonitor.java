@@ -13,12 +13,20 @@
  */
 package org.codice.ddf.config.mapping.file;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.codice.ddf.config.mapping.ConfigMappingService;
 import org.codice.ddf.config.mapping.groovy.GroovyConfigMappingReader;
@@ -35,10 +43,29 @@ public class ConfigMappingFileMonitor implements Closeable {
 
   private final GroovyConfigMappingReader reader = new GroovyConfigMappingReader();
 
+  private final Set<Path> paths;
+
   private final Object lock = new Object();
 
   public ConfigMappingFileMonitor(ConfigMappingService mapper) {
+    this(mapper, ImmutableSet.of(System.getProperty("ddf.home") + "/etc/mappings"));
+  }
+
+  public ConfigMappingFileMonitor(ConfigMappingService mapper, Set<String> paths) {
     this.mapper = mapper;
+    this.paths = paths.stream().map(File::new).map(File::toPath).collect(Collectors.toSet());
+  }
+
+  /** Initializes mapping providers based on all files found in the defined paths. */
+  public void init() {
+    LOGGER.debug("ConfigMappingFileMonitor::init()");
+    synchronized (lock) {
+      paths
+          .stream()
+          .map(Path::toFile)
+          .flatMap(ConfigMappingFileMonitor::listFiles)
+          .forEach(this::install);
+    }
   }
 
   @Override
@@ -106,6 +133,13 @@ public class ConfigMappingFileMonitor implements Closeable {
     }
   }
 
+  public boolean canHandle(File file) {
+    final Path path = file.toPath();
+    final String name = file.getName();
+
+    return name.endsWith(".json") && paths.stream().anyMatch(path::startsWith);
+  }
+
   @Nullable
   private ConfigMappingProvider loadProvider(File file) {
     try {
@@ -115,5 +149,10 @@ public class ConfigMappingFileMonitor implements Closeable {
       LOGGER.debug("loading failure: {}", e, e);
       return null;
     }
+  }
+
+  private static Stream<File> listFiles(File path) {
+    return FileUtils.listFiles(path, new WildcardFileFilter("*.json"), TrueFileFilter.INSTANCE)
+        .stream();
   }
 }

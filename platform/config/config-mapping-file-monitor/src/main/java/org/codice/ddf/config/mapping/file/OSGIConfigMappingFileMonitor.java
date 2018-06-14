@@ -13,11 +13,7 @@
  */
 package org.codice.ddf.config.mapping.file;
 
-import com.google.common.collect.ImmutableSet;
-import java.io.File;
-import java.nio.file.Path;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.codice.ddf.config.mapping.ConfigMappingService;
 import org.slf4j.Logger;
@@ -28,27 +24,11 @@ public class OSGIConfigMappingFileMonitor extends ConfigMappingFileMonitor
     implements ArtifactInstaller {
   private static final Logger LOGGER = LoggerFactory.getLogger(OSGIConfigMappingFileMonitor.class);
 
-  private final Set<Path> paths;
-
   public OSGIConfigMappingFileMonitor(ConfigMappingService mapper) {
-    this(mapper, ImmutableSet.of(System.getProperty("ddf.home") + "/etc/mappings"));
+    super(mapper);
   }
 
   public OSGIConfigMappingFileMonitor(ConfigMappingService mapper, Set<String> paths) {
-    super(mapper);
-    this.paths = paths.stream().map(File::new).map(File::toPath).collect(Collectors.toSet());
-  }
-
-  @SuppressWarnings("unused" /* called by blueprint */)
-  public void init() {
-    LOGGER.debug("OSGIConfigMappingFileMonitor::init()");
-  }
-
-  @Override
-  public boolean canHandle(File file) {
-    final Path path = file.toPath();
-    final String name = file.getName();
-
-    return name.endsWith(".json") && paths.stream().anyMatch(path::startsWith);
+    super(mapper, paths);
   }
 }
