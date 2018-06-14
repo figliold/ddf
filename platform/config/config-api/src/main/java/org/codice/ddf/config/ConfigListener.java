@@ -13,20 +13,12 @@
  */
 package org.codice.ddf.config;
 
-/**
- * Base interface for all configuration classes. Singleton confguration objects will implement this
- * interface directly whereas configuration objects that supports multiple instances will implement
- * the {@link ConfigInstance} interface.
- *
- * <p>Equality of configuration objects is solely based on the class of the configuration object for
- * singleton configuration objects and on both the class and the instance identifier for
- * instance-based configuration objects.
- */
-public interface Config {
+/** Listener interface for all configuration events. */
+public interface ConfigListener {
   /**
-   * Gets the version for this configuration.
+   * Receives notification that a configuration object was changed.
    *
-   * @return the version for this configuration
+   * @param event the {@link ConfigEvent} object
    */
-  public int getVersion();
+  public void configChanged(ConfigEvent event);
 }

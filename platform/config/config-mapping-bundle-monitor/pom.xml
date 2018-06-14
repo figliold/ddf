@@ -22,8 +22,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <name>DDF :: Config :: OSGI :: Agent</name>
-    <artifactId>config-osgi-agent</artifactId>
+    <name>DDF :: Config :: Mapping :: Bundle Monitor</name>
+    <artifactId>config-mapping-bundle-monitor</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -43,6 +43,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.config</groupId>
+            <artifactId>config-mapping-providers</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -57,7 +62,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util
+                            config-mapping-providers,platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

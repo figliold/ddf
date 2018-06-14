@@ -11,22 +11,28 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.config;
+package org.codice.ddf.config.mapping;
 
-/**
- * Base interface for all configuration classes. Singleton confguration objects will implement this
- * interface directly whereas configuration objects that supports multiple instances will implement
- * the {@link ConfigInstance} interface.
- *
- * <p>Equality of configuration objects is solely based on the class of the configuration object for
- * singleton configuration objects and on both the class and the instance identifier for
- * instance-based configuration objects.
- */
-public interface Config {
+/** Configuration mapping event. */
+public interface ConfigMappingEvent {
+  /** Various type of configuration mapping events. */
+  public static enum Type {
+    CREATED,
+    UPDATED,
+    REMOVED
+  }
+
   /**
-   * Gets the version for this configuration.
+   * Gets the type of configuration mapping event this is.
    *
-   * @return the version for this configuration
+   * @return the type of event this is
    */
-  public int getVersion();
+  public Type getType();
+
+  /**
+   * Gets the configuration mapping that was the origin of this event.
+   *
+   * @return the config mapping that was the origin of this event
+   */
+  public ConfigMapping getMapping();
 }

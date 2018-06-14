@@ -35,6 +35,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.config.mapping.ConfigMapping;
+import org.codice.ddf.config.mapping.ConfigMappingEvent;
+import org.codice.ddf.config.mapping.ConfigMappingEvent.Type;
 import org.codice.ddf.config.mapping.ConfigMappingException;
 import org.codice.ddf.config.mapping.ConfigMappingListener;
 import org.codice.ddf.config.mapping.ConfigMappingService;
@@ -152,21 +154,13 @@ public class ConfigAdminAgent
   }
 
   @Override
-  public void created(ConfigMapping mapping) {
-    LOGGER.debug("ConfigAdminAgent:created({})", mapping);
-    createdOrUpdated(mapping);
-  }
-
-  @Override
-  public void updated(ConfigMapping mapping) {
-    LOGGER.debug("ConfigAdminAgent:updated({})", mapping);
-    createdOrUpdated(mapping);
-  }
-
-  @Override
-  public void removed(ConfigMapping mapping) {
-    LOGGER.debug("ConfigAdminAgent:removed({})", mapping);
-    // just leave it alone - should we delete the corresponding config object???
+  public void mappingChanged(ConfigMappingEvent event) {
+    LOGGER.debug("ConfigAdminAgent:mappingChanged({})", event);
+    if (event.getType() == Type.REMOVED) {
+      // just leave it alone - should we delete the corresponding config object???
+      return;
+    }
+    updated(event.getMapping());
   }
 
   BundleContext getBundleContext() {
@@ -178,11 +172,12 @@ public class ConfigAdminAgent
     throw new IllegalStateException("missing bundle for ConfigAdminAgent");
   }
 
-  private void createdOrUpdated(ConfigMapping mapping) {
+  private void updated(ConfigMapping mapping) {
+    LOGGER.debug("ConfigAdminAgent:updated({})", mapping);
     try {
-      final Configuration cfg;
-      final String pid = mapping.getId().getName();
       final String instance = mapping.getId().getInstance().orElse(null);
+      final String pid = mapping.getId().getName();
+      final Configuration cfg;
 
       if (instance != null) { // a managed service factory
         final Configuration[] cfgs =

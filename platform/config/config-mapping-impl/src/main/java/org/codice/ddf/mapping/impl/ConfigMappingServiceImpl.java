@@ -17,13 +17,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
+import org.codice.ddf.config.ConfigEvent;
+import org.codice.ddf.config.ConfigListener;
 import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
+import org.codice.ddf.config.mapping.ConfigMappingEvent;
+import org.codice.ddf.config.mapping.ConfigMappingEvent.Type;
 import org.codice.ddf.config.mapping.ConfigMappingListener;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.codice.ddf.config.mapping.ConfigMappingService;
@@ -33,8 +36,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigMappingServiceImpl implements ConfigMappingService {
-  // , ConfigAbstractionListener
+public class ConfigMappingServiceImpl implements ConfigMappingService, ConfigListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMappingServiceImpl.class);
 
   private final ConfigService config;
@@ -53,14 +55,11 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
 
   @Override
   public boolean bind(ConfigMappingProvider provider) {
+    LOGGER.debug("ConfigMappingServiceImpl::bind({})", provider);
     if (providers.add(provider)) {
       LOGGER.debug("bound provider: {}", provider);
       // find config mapping that needs to be updated
-      mappings
-          .values()
-          .stream()
-          .filter(m -> provider.canProvideFor(m.getId()))
-          .forEach(m -> bind(provider, m));
+      mappings.values().stream().filter(provider::canProvideFor).forEach(m -> bind(provider, m));
       return true;
     }
     return false;
@@ -68,6 +67,7 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
 
   @Override
   public boolean unbind(ConfigMappingProvider provider) {
+    LOGGER.debug("ConfigMappingServiceImpl::unbind({})", provider);
     if (providers.remove(provider)) {
       LOGGER.debug("unbound provider: {}", provider);
       // find config mapping that needs to be updated
@@ -94,6 +94,17 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
         .map(ConfigMapping.class::cast);
   }
 
+  @Override
+  public void configChanged(ConfigEvent event) {
+    LOGGER.debug("ConfigMappingServiceImpl::configChanged({})", event);
+    mappings
+        .values()
+        .stream()
+        .filter(ConfigMappingImpl::isAvailable)
+        .filter(m -> m.isAffectedBy(event))
+        .forEach(this::notifyUpdated);
+  }
+
   protected BundleContext getBundleContext() {
     final Bundle bundle = FrameworkUtil.getBundle(ConfigMappingServiceImpl.class);
 
@@ -106,55 +117,37 @@ public class ConfigMappingServiceImpl implements ConfigMappingService {
   @Nullable
   private ConfigMappingImpl newMapping(ConfigMapping.Id id) {
     // search all registered providers to find those that supports the specified mapping
-    return new ConfigMappingImpl(config, id, providers.stream().filter(p -> p.canProvideFor(id)));
+    final ConfigMappingImpl mapping =
+        new ConfigMappingImpl(config, id, providers.stream().filter(p -> p.canProvideFor(id)));
+
+    if (mapping.isAvailable()) {
+      notify(Type.CREATED, mapping);
+    }
+    return mapping;
   }
 
   private void bind(ConfigMappingProvider provider, ConfigMappingImpl mapping) {
+    final boolean wasAvailable = mapping.isAvailable();
+
     if (mapping.bind(provider)) {
-      notifyUpdated(mapping);
+      notify(!wasAvailable ? Type.CREATED : Type.UPDATED, mapping);
     }
   }
 
   private void unbind(ConfigMappingProvider provider, ConfigMappingImpl mapping) {
     if (mapping.unbind(provider)) {
-      if (mapping.isAvailable()) {
-        notifyUpdated(mapping);
-      } else {
-        notifyRemoved(mapping);
-      }
+      notify(mapping.isAvailable() ? Type.UPDATED : Type.REMOVED, mapping);
     }
   }
 
-  private void updated(Map<String, Set<String>> ids) {
-    LOGGER.debug("ConfigMappingServiceImpl::updated({})", ids);
-    // mappings.values().stream().filter(m -> m.shouldBeUpdated(ids)).forEach(this::notifyUpdated);
-  }
-
-  //  private void updated(String id, File artifact) throws IOException {
-  //    try {
-  //      notifyUpdated(
-  //          mappings.compute(
-  //              id,
-  //              (i, m) -> {
-  //                if (m == null) {
-  //                  m = new ConfigMappingImpl(agent, artifact);
-  //                } else {
-  //                  m.loadRules();
-  //                }
-  //                return m;
-  //              }));
-  //    } catch (UncheckedIOException e) {
-  //      throw e.getCause();
-  //    }
-  //  }
-
   private void notifyUpdated(ConfigMapping mapping) {
-    LOGGER.debug("ConfigMappingServiceImpl::notifyUpdated({})", mapping);
-    listeners.forEach(l -> l.updated(mapping));
+    notify(Type.UPDATED, mapping);
   }
 
-  private void notifyRemoved(ConfigMapping mapping) {
-    LOGGER.debug("ConfigMappingServiceImpl::notifyRemoved({})", mapping);
-    listeners.forEach(l -> l.removed(mapping));
+  private void notify(ConfigMappingEvent.Type type, ConfigMapping mapping) {
+    LOGGER.debug("ConfigMappingServiceImpl::notify({}, {})", type, mapping);
+    final ConfigMappingEventImpl event = new ConfigMappingEventImpl(type, mapping);
+
+    listeners.forEach(l -> l.mappingChanged(event));
   }
 }

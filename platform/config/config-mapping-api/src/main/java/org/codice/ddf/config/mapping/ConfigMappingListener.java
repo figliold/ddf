@@ -19,23 +19,9 @@ package org.codice.ddf.config.mapping;
  */
 public interface ConfigMappingListener {
   /**
-   * Indicates a new configuration mapping was created.
+   * Receives notification that a configuration mapping was changed.
    *
-   * @param mapping the mapping that was just created
+   * @param event the {@link ConfigMappingEvent} object
    */
-  public void created(ConfigMapping mapping);
-
-  /**
-   * Indicates a configuration mapping was updated.
-   *
-   * @param mapping the mapping that was just updated
-   */
-  public void updated(ConfigMapping mapping);
-
-  /**
-   * Indicates a configuration mapping was deleted.
-   *
-   * @param mapping the mapping that was just deleted
-   */
-  public void removed(ConfigMapping mapping);
+  public void mappingChanged(ConfigMappingEvent event);
 }

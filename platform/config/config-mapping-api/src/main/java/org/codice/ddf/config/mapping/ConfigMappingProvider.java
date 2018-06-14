@@ -62,16 +62,28 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
   public int getRank();
 
   /**
-   * Checks if this provider can provide mapped dictionaries for a given configuration mapping or
-   * for all its instances if the identifier doesn't identify a specific instance.
+   * Checks if this provider can provide mapped dictionaries for a given configuration mapping.
    *
    * <p><i>Note:</i> A provider is expected not to change which configuration mappings it provides
    * for unless the provider is first unbound from the {@link ConfigMappingService} and then
-   * rebound. Rebinding a provider will re-asses which config mapping is impacted by this change.
+   * rebound. Rebinding a provider will re-compute which config mapping is impacted by this change.
    *
-   * @param id the name of the config mapping to check if this provider can provide for
+   * @param mapping the config mapping to check if this provider can provide for
    * @return <code>true</code> if this provider can provide mapped dictionaries for the specified
-   *     config mapping or for all its instances; <code>false</code> otherwise
+   *     config mapping; <code>false</code> otherwise
+   */
+  public boolean canProvideFor(ConfigMapping mapping);
+
+  /**
+   * Checks if this provider can provide mapped dictionaries for a given configuration mapping.
+   *
+   * <p><i>Note:</i> A provider is expected not to change which configuration mappings it provides
+   * for unless the provider is first unbound from the {@link ConfigMappingService} and then
+   * rebound. Rebinding a provider will re-compute which config mapping is impacted by this change.
+   *
+   * @param id the id of the config mapping to check if this provider can provide for
+   * @return <code>true</code> if this provider can provide mapped dictionaries for the specified
+   *     config mapping; <code>false</code> otherwise
    */
   public boolean canProvideFor(ConfigMapping.Id id);
 

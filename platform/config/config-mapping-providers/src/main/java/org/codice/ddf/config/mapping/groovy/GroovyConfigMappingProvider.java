@@ -27,7 +27,6 @@ import java.util.Set;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
-import org.codice.ddf.config.mapping.ConfigMapping.Id;
 import org.codice.ddf.config.mapping.ConfigMappingException;
 import org.codice.ddf.config.mapping.ConfigMappingInformation;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
@@ -74,7 +73,12 @@ class GroovyConfigMappingProvider implements ConfigMappingProvider {
   }
 
   @Override
-  public boolean canProvideFor(Id id) {
+  public boolean canProvideFor(ConfigMapping mapping) {
+    return canProvideFor(mapping.getId());
+  }
+
+  @Override
+  public boolean canProvideFor(ConfigMapping.Id id) {
     final String name = id.getName();
 
     if (!names.contains(name)) {

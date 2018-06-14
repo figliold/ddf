@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.codice.ddf.config.ConfigService;
+import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMapping.Id;
 import org.codice.ddf.config.mapping.ConfigMappingException;
 import org.codice.ddf.config.mapping.ConfigMappingInformation;
@@ -78,6 +79,11 @@ public class OSGIConfigMappingProvider implements ConfigMappingInformation, Clos
     synchronized (lock) {
       return rank;
     }
+  }
+
+  @Override
+  public boolean canProvideFor(ConfigMapping mapping) {
+    return canProvideFor(mapping.getId());
   }
 
   @Override

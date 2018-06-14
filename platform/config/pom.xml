@@ -33,8 +33,8 @@
         <module>config-mapping-impl</module>
         <module>config-mapping-providers</module>
         <module>config-mapping-file-monitor</module>
-        <module>config-mapping-osgi-bundle-monitor</module>
-        <module>config-osgi-agent</module>
+        <module>config-mapping-bundle-monitor</module>
+        <module>config-osgi-admin-agent</module>
     </modules>
 
     <build>
