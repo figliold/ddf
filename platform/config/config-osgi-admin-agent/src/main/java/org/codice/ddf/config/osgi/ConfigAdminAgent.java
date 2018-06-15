@@ -118,7 +118,6 @@ public class ConfigAdminAgent
     final int type = event.getType();
 
     LOGGER.debug("ConfigAdminAgent::serviceChanged() - type = [{}], service = [{}]", type, ref);
-
     if ((type == ServiceEvent.REGISTERED) || (type == ServiceEvent.MODIFIED)) {
       ConfigAdminAgent.servicePids(ref)
           .map(mapper::getMapping)

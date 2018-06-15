@@ -184,17 +184,14 @@ public class ConfigMappingImpl implements ConfigMapping {
 
     @Override
     public <T extends Config> Optional<T> get(Class<T> type) {
-      final Optional<T> result = config.get(type);
-
       // insert or replace the entry with an indicator that we depend on all instances for `type`
       dependents.put(type, ConfigMappingImpl.ALL);
-      return result;
+      return config.get(type);
     }
 
     @Override
     public <T extends ConfigInstance> Optional<T> get(Class<T> type, String id) {
-      final Optional<T> result = config.get(type, id);
-
+      // insert this specific id for the given type unless we already depend on all
       dependents.compute(
           type,
           (t, set) -> {
@@ -206,7 +203,14 @@ public class ConfigMappingImpl implements ConfigMapping {
             } // else - this type is dependent on ALL so nothing to do
             return set;
           });
-      return result;
+      return config.get(type, id);
+    }
+
+    @Override
+    public <T extends ConfigInstance> Stream<T> configs(Class<T> type) {
+      // insert or replace the entry with an indicator that we depend on all instances for `type`
+      dependents.put(type, ConfigMappingImpl.ALL);
+      return config.configs(type);
     }
   }
 }

@@ -15,6 +15,7 @@ package org.codice.ddf.config.mapping;
 
 import java.util.Map;
 import org.codice.ddf.config.ConfigService;
+import org.codice.ddf.config.mapping.ConfigMapping.Id;
 
 /**
  * Provides access to mapped configuration properties for either a configuration mapping or for a
@@ -30,9 +31,12 @@ import org.codice.ddf.config.ConfigService;
  * provider was first bound to the {@link ConfigMappingService} directly will be considered to have
  * a higher priority.
  *
- * <p>For providers registered as OSGI services, service ranking will be used to establish priority
- * for mapped properties. When a tie in ranking exist, whichever service that was first registered
- * with the service registry will be considered to have a higher priority.
+ * <p>For providers registered as OSGI services, ranking and which configuration mappings as
+ * returned by the {@link #getRank()}, {@link #canProvideFor(ConfigMapping)}, and {@link
+ * #canProvideFor(Id)} methods are ignored in favor of using the service ranking and {@link
+ * #MAPPING_NAME}, and {@link #MAPPING_INSTANCE} service properties registered with the service.
+ * When a ranking tie in exist, whichever service that was first registered with the service
+ * registry will be considered to have a higher priority.
  */
 public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider> {
   /**

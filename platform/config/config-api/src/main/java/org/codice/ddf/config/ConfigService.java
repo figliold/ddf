@@ -14,6 +14,7 @@
 package org.codice.ddf.config;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /** Service interface for configuration. */
 public interface ConfigService {
@@ -32,7 +33,16 @@ public interface ConfigService {
    * @param <T> the class of configuration to retrieve
    * @param type the class of configuration to retrieve
    * @param id the unique instance id for the configuration to retrieve
-   * @return the corresponding configuration or empty if none exist
+   * @return the corresponding configuration instance or empty if none exist
    */
   public <T extends ConfigInstance> Optional<T> get(Class<T> type, String id);
+
+  /**
+   * Retrieves all instances of a given type of configuration.
+   *
+   * @param <T> the class of configuration to retrieve
+   * @param type the class of configuration to retrieve
+   * @return a stream of all configuration instances of the given type
+   */
+  public <T extends ConfigInstance> Stream<T> configs(Class<T> type);
 }
