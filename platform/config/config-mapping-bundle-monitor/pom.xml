@@ -62,7 +62,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            config-mapping-providers,platform-util
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

@@ -59,7 +59,8 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    * Gets a ranking priority for this provider (see class description for more details).
    *
    * <p><i>Note:</i> The provider's rank is not expected to change during the life of this provider
-   * unless the provider is first unbound from the {@link ConfigMappingService} and then rebound.
+   * unless the provider is rebound with the {@link ConfigMappingService} which will re-compute
+   * which config mappings are impacted by this change.
    *
    * @return this provider's ranking priority
    */
@@ -69,8 +70,8 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    * Checks if this provider can provide mapped dictionaries for a given configuration mapping.
    *
    * <p><i>Note:</i> A provider is expected not to change which configuration mappings it provides
-   * for unless the provider is first unbound from the {@link ConfigMappingService} and then
-   * rebound. Rebinding a provider will re-compute which config mapping is impacted by this change.
+   * for unless the provider is rebound with the {@link ConfigMappingService} which will re-compute
+   * which config mappings are impacted by this change.
    *
    * @param mapping the config mapping to check if this provider can provide for
    * @return <code>true</code> if this provider can provide mapped dictionaries for the specified
@@ -82,8 +83,8 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    * Checks if this provider can provide mapped dictionaries for a given configuration mapping.
    *
    * <p><i>Note:</i> A provider is expected not to change which configuration mappings it provides
-   * for unless the provider is first unbound from the {@link ConfigMappingService} and then
-   * rebound. Rebinding a provider will re-compute which config mapping is impacted by this change.
+   * for unless the provider is rebound with the {@link ConfigMappingService} which will re-compute
+   * which config mappings are impacted by this change.
    *
    * @param id the id of the config mapping to check if this provider can provide for
    * @return <code>true</code> if this provider can provide mapped dictionaries for the specified

@@ -40,7 +40,7 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener, Cl
 
   @SuppressWarnings("unused" /* called by blueprint */)
   public void init() {
-    LOGGER.debug("ConfigMappingServiceImpl::init()");
+    LOGGER.debug("ConfigMappingBundleMonitor::init()");
     final BundleContext context = getBundleContext();
 
     // start by registering a bundle listener
@@ -53,7 +53,7 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener, Cl
 
   @Override
   public void close() {
-    LOGGER.debug("ConfigMappingServiceImpl::close()");
+    LOGGER.debug("ConfigMappingBundleMonitor::close()");
     final BundleContext context = getBundleContext();
 
     context.removeBundleListener(this);
@@ -76,7 +76,7 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener, Cl
     final int type = event.getType();
 
     LOGGER.debug(
-        "ConfigMappingServiceImpl::bundleChanged() - type = [{}], bundle = [{}], state = [{}]",
+        "ConfigMappingBundleMonitor::bundleChanged() - type = [{}], bundle = [{}], state = [{}]",
         type,
         location,
         state);
@@ -88,7 +88,7 @@ public class ConfigMappingBundleMonitor implements SynchronousBundleListener, Cl
   private void loadAndRegisterMappings(Bundle bundle) {
     final String location = bundle.getLocation();
 
-    LOGGER.debug("ConfigMappingServiceImpl::loadAndRegisterMappings({})", location);
+    LOGGER.debug("ConfigMappingBundleMonitor::loadAndRegisterMappings({})", location);
     // check if we can find mappings resources for this bundle
     final Enumeration<URL> urls =
         bundle.findEntries(ConfigMappingService.MAPPINGS_DOCUMENTS_LOCATION, "*.xml", false);
