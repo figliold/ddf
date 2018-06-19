@@ -35,8 +35,10 @@
         <module>config-mapping-file-monitor</module>
         <module>config-mapping-bundle-monitor</module>
         <module>config-osgi-admin-agent</module>
-        <module>config-app</module>
+        <module>config-reader-api</module>
+        <module>config-reader-yaml</module>
         <module>config-service</module>
+        <module>config-app</module>
     </modules>
 
     <build>
