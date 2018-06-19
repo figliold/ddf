@@ -47,6 +47,11 @@
             <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.config</groupId>
+            <artifactId>config-reader-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -63,15 +68,15 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            snakeyaml
-                        </Embed-Dependency>
-                        <Export-Package/>
-                    </instructions>
-                </configuration>
+                <!--<configuration>-->
+                    <!--<instructions>-->
+                        <!--<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>-->
+                        <!--<Embed-Dependency>-->
+                            <!--snakeyaml-->
+                        <!--</Embed-Dependency>-->
+                        <!--<Export-Package/>-->
+                    <!--</instructions>-->
+                <!--</configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
