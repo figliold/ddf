@@ -19,30 +19,30 @@ import java.util.stream.Stream;
 /** Service interface for configuration. */
 public interface ConfigService {
   /**
-   * Retrieves a configuration of a given type.
+   * Retrieves a singleton configuration of a given type.
    *
-   * @param <T> the class of configuration to retrieve
-   * @param type the class of configuration to retrieve
-   * @return the corresponding configuration or empty if it doesn't exist
+   * @param <T> the type of singleton config to retrieve
+   * @param type the type of singleton config to retrieve
+   * @return the corresponding config object or empty if it doesn't exist
    */
-  public <T extends Config> Optional<T> get(Class<T> type);
+  public <T extends ConfigSingleton> Optional<T> get(Class<T> type);
 
   /**
-   * Retrieves a specific configuration instance of a given type.
+   * Retrieves a specific configuration instance of a given type of configuration group.
    *
-   * @param <T> the class of configuration to retrieve
-   * @param type the class of configuration to retrieve
-   * @param id the unique instance id for the configuration to retrieve
-   * @return the corresponding configuration instance or empty if none exist
+   * @param <T> the type of group config to retrieve an instance for
+   * @param type the type of group config to retrieve an instance for
+   * @param id the unique instance id for the config object to retrieve
+   * @return the corresponding config object instance or empty if none exist
    */
-  public <T extends ConfigInstance> Optional<T> get(Class<T> type, String id);
+  public <T extends ConfigGroup> Optional<T> get(Class<T> type, String id);
 
   /**
-   * Retrieves all instances of a given type of configuration.
+   * Retrieves all instances of a given type of configuration group.
    *
-   * @param <T> the class of configuration to retrieve
-   * @param type the class of configuration to retrieve
-   * @return a stream of all configuration instances of the given type
+   * @param <T> the type of group config to retrieve all instances for
+   * @param type the type of group config to retrieve all instances for
+   * @return a corresponding stream of all config objects
    */
-  public <T extends ConfigInstance> Stream<T> configs(Class<T> type);
+  public <T extends ConfigGroup> Stream<T> configs(Class<T> type);
 }

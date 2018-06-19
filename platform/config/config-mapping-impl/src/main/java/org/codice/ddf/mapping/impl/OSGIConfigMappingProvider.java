@@ -23,13 +23,12 @@ import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMapping.Id;
 import org.codice.ddf.config.mapping.ConfigMappingException;
-import org.codice.ddf.config.mapping.ConfigMappingInformation;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-public class OSGIConfigMappingProvider implements ConfigMappingInformation, Closeable {
+public class OSGIConfigMappingProvider implements ConfigMappingProvider, Closeable {
   private final BundleContext context;
 
   private final Object lock = new Object();
@@ -119,10 +118,8 @@ public class OSGIConfigMappingProvider implements ConfigMappingInformation, Clos
       if (provider instanceof OSGIConfigMappingProvider) {
         // rely on service reference comparison which will use ranking and service order
         return reference.compareTo(((OSGIConfigMappingProvider) provider).reference);
-      } else if (provider instanceof ConfigMappingInformation) {
-        return Integer.compare(getRank(), ((ConfigMappingInformation) provider).getRank());
-      } // else - since we have a rank and they don't, we have higher priority
-      return 1;
+      }
+      return Integer.compare(getRank(), provider.getRank());
     }
   }
 

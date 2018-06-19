@@ -28,7 +28,6 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMappingException;
-import org.codice.ddf.config.mapping.ConfigMappingInformation;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,10 +141,7 @@ class GroovyConfigMappingProvider implements ConfigMappingProvider {
 
   @Override
   public int compareTo(ConfigMappingProvider provider) {
-    if (provider instanceof ConfigMappingInformation) {
-      return Integer.compare(getRank(), ((ConfigMappingInformation) provider).getRank());
-    } // else - since we have a rank and they don't, we have higher priority
-    return 1;
+    return Integer.compare(getRank(), provider.getRank());
   }
 
   @Override

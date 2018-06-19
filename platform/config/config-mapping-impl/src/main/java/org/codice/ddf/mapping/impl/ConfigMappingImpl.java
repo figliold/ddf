@@ -27,8 +27,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.codice.ddf.config.Config;
 import org.codice.ddf.config.ConfigEvent;
-import org.codice.ddf.config.ConfigInstance;
+import org.codice.ddf.config.ConfigGroup;
 import org.codice.ddf.config.ConfigService;
+import org.codice.ddf.config.ConfigSingleton;
 import org.codice.ddf.config.mapping.ConfigMapping;
 import org.codice.ddf.config.mapping.ConfigMappingException;
 import org.codice.ddf.config.mapping.ConfigMappingProvider;
@@ -47,6 +48,8 @@ public class ConfigMappingImpl implements ConfigMapping {
 
   private final SortedSet<ConfigMappingProvider> providers;
 
+  // keyed by config type with corresponding set of instances or ALL if not a group or dependent on
+  // all instances
   private final Map<Class<? extends Config>, Set<String>> dependents = new ConcurrentHashMap<>();
 
   public ConfigMappingImpl(
@@ -107,13 +110,13 @@ public class ConfigMappingImpl implements ConfigMapping {
   }
 
   boolean isAffectedBy(Config config) {
-    final Set<String> instances = dependents.get(config.getClass());
+    final Set<String> instances = dependents.get(config.getType());
 
     if (instances == null) {
       LOGGER.debug(
           "ConfigMappingImpl[{}].isAffectedBy({}) = false; class not supported", id, config);
       return false;
-    } else if (!(config instanceof ConfigInstance)) {
+    } else if (!(config instanceof ConfigGroup)) {
       LOGGER.debug("ConfigMappingImpl[{}].isAffectedBy({}) = true; class supported", id, config);
       return true;
     } else if (instances == ConfigMappingImpl.ALL) {
@@ -121,7 +124,7 @@ public class ConfigMappingImpl implements ConfigMapping {
           "ConfigMappingImpl[{}].isAffectedBy({}) = true; all instances supported", id, config);
       return true;
     }
-    final String instanceId = ((ConfigInstance) config).getId();
+    final String instanceId = ((ConfigGroup) config).getId();
 
     if (instances.contains(instanceId)) {
       LOGGER.debug(
@@ -183,17 +186,17 @@ public class ConfigMappingImpl implements ConfigMapping {
     }
 
     @Override
-    public <T extends Config> Optional<T> get(Class<T> type) {
+    public <T extends ConfigSingleton> Optional<T> get(Class<T> type) {
       // insert or replace the entry with an indicator that we depend on all instances for `type`
-      dependents.put(type, ConfigMappingImpl.ALL);
+      dependents.put(Config.getType(type), ConfigMappingImpl.ALL);
       return config.get(type);
     }
 
     @Override
-    public <T extends ConfigInstance> Optional<T> get(Class<T> type, String id) {
+    public <T extends ConfigGroup> Optional<T> get(Class<T> type, String id) {
       // insert this specific id for the given type unless we already depend on all
       dependents.compute(
-          type,
+          Config.getType(type),
           (t, set) -> {
             if (set == null) {
               set = new ConcurrentSkipListSet<>();
@@ -207,9 +210,12 @@ public class ConfigMappingImpl implements ConfigMapping {
     }
 
     @Override
-    public <T extends ConfigInstance> Stream<T> configs(Class<T> type) {
+    public <T extends ConfigGroup> Stream<T> configs(Class<T> type) {
       // insert or replace the entry with an indicator that we depend on all instances for `type`
-      dependents.put(type, ConfigMappingImpl.ALL);
+      // even though we might only care about a subclass of the actual config object type, we will
+      // still mark the whole config object type with ALL since we cannot validate which actual
+      // subclasses might come in later - at worst, we might recompute more often then required
+      dependents.put(Config.getType(type), ConfigMappingImpl.ALL);
       return config.configs(type);
     }
   }

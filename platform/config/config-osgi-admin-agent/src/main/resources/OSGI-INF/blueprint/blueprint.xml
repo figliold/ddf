@@ -43,9 +43,9 @@
         <argument ref="config"/>
         <property name="factories">
             <map>
-                <entry value="factoryPid">
+                <entry value="DDF_Custom_Mime_Type_Resolver">
                     <key>
-                        <value type="java.lang.Class">org.codice.ddf.config.ConfigInstance</value>
+                        <value type="java.lang.Class">org.codice.ddf.config.MimeTypeConfig</value>
                     </key>
                 </entry>
             </map>

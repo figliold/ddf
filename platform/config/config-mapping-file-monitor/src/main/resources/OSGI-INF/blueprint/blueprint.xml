@@ -30,6 +30,7 @@
 
     <service ref="fileMonitor">
         <interfaces>
+            <value>org.apache.felix.fileinstall.ArtifactListener</value>
             <value>org.apache.felix.fileinstall.ArtifactInstaller</value>
         </interfaces>
     </service>

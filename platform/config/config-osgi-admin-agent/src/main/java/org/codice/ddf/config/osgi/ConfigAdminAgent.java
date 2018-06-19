@@ -36,7 +36,7 @@ import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.config.ConfigEvent;
-import org.codice.ddf.config.ConfigInstance;
+import org.codice.ddf.config.ConfigGroup;
 import org.codice.ddf.config.ConfigListener;
 import org.codice.ddf.config.ConfigService;
 import org.codice.ddf.config.mapping.ConfigMapping;
@@ -77,7 +77,7 @@ public class ConfigAdminAgent
 
   private ConfigService config;
 
-  private final Map<Class<? extends ConfigInstance>, String> factories;
+  private final Map<Class<? extends ConfigGroup>, String> factories;
 
   private final Map<String, Dictionary<String, Object>> cache = new ConcurrentHashMap<>();
 
@@ -85,7 +85,7 @@ public class ConfigAdminAgent
       ConfigurationAdmin configAdmin,
       ConfigMappingService mapper,
       ConfigService config,
-      Map<Class<? extends ConfigInstance>, String> factories) {
+      Map<Class<? extends ConfigGroup>, String> factories) {
     this.configAdmin = configAdmin;
     this.mapper = mapper;
     this.factories = factories;
@@ -130,7 +130,7 @@ public class ConfigAdminAgent
     context.removeServiceListener(this);
   }
 
-  public void setFactories(Map<Class<? extends ConfigInstance>, String> factories) {
+  public void setFactories(Map<Class<? extends ConfigGroup>, String> factories) {
     // TODO: determine what mappings no longer exist so we can remove the corresponding config
     // objects
     // process all configured config instances we have to monitor
@@ -194,8 +194,8 @@ public class ConfigAdminAgent
     // start with config instances that were removed
     event
         .removedConfigs()
-        .filter(ConfigInstance.class::isInstance)
-        .map(ConfigInstance.class::cast)
+        .filter(ConfigGroup.class::isInstance)
+        .map(ConfigGroup.class::cast)
         .forEach(this::removeConfigObjectFor);
     // handle new and updated ones the same way to make sure we have corresponding cfg objects
     // if whatever reasons we had missed them
@@ -203,8 +203,8 @@ public class ConfigAdminAgent
     // notified if there is any changes, what we care about here is simply to detect those for which
     // we do not have a corresponding config object
     Stream.concat(event.addedConfigs(), event.updatedConfigs())
-        .filter(ConfigInstance.class::isInstance)
-        .map(ConfigInstance.class::cast)
+        .filter(ConfigGroup.class::isInstance)
+        .map(ConfigGroup.class::cast)
         .forEach(this::findConfigMappingFor);
   }
 
@@ -217,12 +217,12 @@ public class ConfigAdminAgent
     throw new IllegalStateException("missing bundle for ConfigAdminAgent");
   }
 
-  private void findConfigMappingsFor(Class<? extends ConfigInstance> type, String factoryPid) {
+  private void findConfigMappingsFor(Class<? extends ConfigGroup> type, String factoryPid) {
     LOGGER.debug("ConfigAdminAgent:findConfigMappingsFor({}, {})", type, factoryPid);
     config.configs(type).forEach(c -> findConfigMappingFor(c, factoryPid));
   }
 
-  private void findConfigMappingFor(ConfigInstance cfgInstance) {
+  private void findConfigMappingFor(ConfigGroup cfgInstance) {
     final String factoryPid = factories.get(cfgInstance.getClass());
 
     if (factoryPid == null) { // not monitoring those so ignore
@@ -231,7 +231,7 @@ public class ConfigAdminAgent
     findConfigMappingFor(cfgInstance, factoryPid);
   }
 
-  private void findConfigMappingFor(ConfigInstance cfgInstance, String factoryPid) {
+  private void findConfigMappingFor(ConfigGroup cfgInstance, String factoryPid) {
     final String type = cfgInstance.getClass().getName();
     final String id = cfgInstance.getId();
 
@@ -254,8 +254,8 @@ public class ConfigAdminAgent
     }
   }
 
-  private void removeConfigObjectFor(ConfigInstance cfgInstance) {
-    final Class<? extends ConfigInstance> clazz = cfgInstance.getClass();
+  private void removeConfigObjectFor(ConfigGroup cfgInstance) {
+    final Class<? extends ConfigGroup> clazz = cfgInstance.getClass();
     final String type = clazz.getName();
     final String id = cfgInstance.getId();
     final String factoryPid = factories.get(clazz);

@@ -13,12 +13,18 @@
  */
 package org.codice.ddf.config;
 
-/** Base interface for all configuration classes that can have multiple instances. */
-public interface ConfigInstance extends Config {
+/**
+ * Base interface for all configuration classes that are defined using a single instance. The type
+ * of singleton configuration objects is defined as the first interface that extends this interface.
+ */
+public interface ConfigSingleton extends Config {
   /**
-   * Gets the unique instance identifier.
+   * Gets the type of singleton configuration object this is.
    *
-   * @return the unique instance identifier for this configuration
+   * @return the type of config object this is
    */
-  public String getId();
+  @Override
+  public default Class<? extends ConfigSingleton> getType() {
+    return (Class<? extends ConfigSingleton>) Config.getType(getClass());
+  }
 }

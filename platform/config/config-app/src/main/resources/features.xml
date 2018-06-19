@@ -20,6 +20,7 @@
              description="Configuration API">
         <bundle>mvn:ddf.config/config-api/${project.version}</bundle>
         <bundle>mvn:ddf.config/config-mapping-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
     </feature>
 
     <feature name="config-providers" version="${project.version}"
@@ -60,6 +61,13 @@
         <bundle>mvn:ddf.config/config-osgi-admin-agent/${project.version}</bundle>
     </feature>
 
+    <feature name="config-service" version="${project.version}"
+             description="Configuration Admin Agent">
+        <feature>config-api</feature>
+        <bundle>mvn:ddf.config/config-service/${project.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-collections4/${commons-collections4.version}</bundle>
+    </feature>
+
     <feature name="config-app" version="${project.version}"
              description="Configuration application for interfacing with the configuration framework.">
         <feature>config-api</feature>
@@ -68,5 +76,6 @@
         <feature>config-file-monitor</feature>
         <feature>config-bundle-monitor</feature>
         <feature>config-admin-agent</feature>
+        <feature>config-service</feature>
     </feature>
 </features>
