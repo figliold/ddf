@@ -14,15 +14,19 @@
 package org.codice.ddf.config.service.impl;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.codice.ddf.config.Config;
-import org.codice.ddf.config.ConfigInstance;
+import org.codice.ddf.config.ConfigEvent;
+import org.codice.ddf.config.ConfigGroup;
+import org.codice.ddf.config.ConfigListener;
 import org.codice.ddf.config.ConfigService;
+import org.codice.ddf.config.ConfigSingleton;
 import org.codice.ddf.config.reader.ConfigReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,62 +39,65 @@ public class ConfigServiceImpl implements ConfigService, ArtifactInstaller {
 
   private final ConfigReader configReader;
 
-  public ConfigServiceImpl(ConfigReader configReader) {
+  private List<ConfigListener> configListeners;
+
+  public ConfigServiceImpl(ConfigReader configReader, List<ConfigListener> configListeners) {
     this.configReader = configReader;
-    LOGGER.error("##### class name for config reader: " + this.configReader.getClass().getName());
-    LOGGER.error("#### class loader: {}", this.configReader.getClass().getClassLoader());
+    this.configListeners = configListeners;
+    LOGGER.error("##### ConfigServiceImpl::Ctor");
   }
 
   @Override
-  public <T extends Config> Optional<T> get(Class<T> key) {
-    LOGGER.error("##### ConfigServiceImpl::get(key)");
-    //    return Optional.ofNullable((T) current.get(key));
-    return Optional.empty();
+  public <T extends ConfigSingleton> Optional<T> get(Class<T> type) {
+    LOGGER.error("##### ConfigServiceImpl::get(type)");
+    return configTracker.get(type);
   }
 
   @Override
-  public <T extends ConfigInstance> Optional<T> get(Class<T> key, String id) {
-    LOGGER.error("##### ConfigServiceImpl::get(key, id)");
-    //    Collection<Config> configs = current.get(key);
-    //    Optional<ConfigInstance> configInstance =
-    //        configs
-    //            .stream()
-    //            .filter(c -> c instanceof ConfigInstance)
-    //            .map(c -> (ConfigInstance) c)
-    //            .filter(c -> c.getId().equals(id))
-    //            .findFirst();
-    //    return (Optional<T>) configInstance;
-    return Optional.empty();
+  public <T extends ConfigGroup> Optional<T> get(Class<T> type, String id) {
+    LOGGER.error("##### ConfigServiceImpl::get(type, id)");
+    return configTracker.get(type, id);
+  }
+
+  @Override
+  public <T extends ConfigGroup> Stream<T> configs(Class<T> type) {
+    LOGGER.error("##### ConfigServiceImpl::configs(type)");
+    return configTracker.configs(type);
   }
 
   @Override
   public void install(File config) throws Exception {
-    LOGGER.error("##### Start ConfigServiceImpl::install(config)");
+    LOGGER.error("##### Start ConfigServiceImpl::install");
     Set<Config> configs = read(config);
-    configTracker.updateCurrent(configs);
-    Multimap<Class<?>, Config> updates = configTracker.computeUpdates();
-    notifyListeners(updates);
-    LOGGER.error("##### End ConfigServiceImpl::install(config)");
+    ConfigEvent configEvent = configTracker.install(config.getName(), configs);
+    configChanged(configEvent);
+    LOGGER.error("##### End ConfigServiceImpl::install");
   }
 
   @Override
   public void update(File config) throws Exception {
-    LOGGER.error("##### Start ConfigServiceImpl::update(config)");
+    LOGGER.error("##### Start ConfigServiceImpl::update");
     Set<Config> configs = read(config);
-    configTracker.updateCurrent(configs);
-    Multimap<Class<?>, Config> updates = configTracker.computeUpdates();
-    notifyListeners(updates);
-    LOGGER.error("##### End ConfigServiceImpl::update(config)");
+    ConfigEvent configEvent = configTracker.update(config.getName(), configs);
+    configChanged(configEvent);
+    LOGGER.error("##### End ConfigServiceImpl::update");
   }
 
   @Override
   public void uninstall(File config) throws Exception {
-    LOGGER.error("##### Start ConfigServiceImpl::uninstall(config)");
-    LOGGER.error("##### End ConfigServiceImpl::uninstall(config)");
+    LOGGER.error("##### Start ConfigServiceImpl::uninstall");
+    ConfigEvent configEvent = configTracker.remove(config.getName());
+    configChanged(configEvent);
+    LOGGER.error("##### End ConfigServiceImpl::uninstall");
   }
 
-  private void notifyListeners(Multimap<Class<?>, Config> configs) {
-    LOGGER.error("##### End ConfigServiceImpl::notifyListeners(config)");
+  private void configChanged(ConfigEvent configEvent) {
+    LOGGER.error("##### Start ConfigServiceImpl::configChanged");
+    for (ConfigListener listener : configListeners) {
+      LOGGER.error("##### Calling config listener");
+      listener.configChanged(configEvent);
+    }
+    LOGGER.error("##### End ConfigServiceImpl::configChanged");
   }
 
   @Override

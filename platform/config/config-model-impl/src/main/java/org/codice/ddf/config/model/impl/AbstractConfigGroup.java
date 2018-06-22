@@ -11,21 +11,25 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.config;
+package org.codice.ddf.config.model.impl;
 
-public abstract class AbstractConfigSingleton implements ConfigSingleton {
-  @Override
-  public int hashCode() {
-    return getType().hashCode();
-  }
+import org.codice.ddf.config.ConfigGroup;
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    } else if (obj instanceof AbstractConfigSingleton) {
-      return getType().equals((((AbstractConfigSingleton) obj).getType()));
-    }
-    return false;
-  }
+public abstract class AbstractConfigGroup implements ConfigGroup {
+  //  @Override
+  //  public final int hashCode() {
+  //    return Objects.hash(getType(), getId());
+  //  }
+  //
+  //  @Override
+  //  public final boolean equals(Object obj) {
+  //    if (obj == this) {
+  //      return true;
+  //    } else if (obj instanceof AbstractConfigGroup) {
+  //      final AbstractConfigGroup cfg = (AbstractConfigGroup) obj;
+  //
+  //      return getType().equals(cfg.getType()) && getId().equals(cfg.getId());
+  //    }
+  //    return false;
+  //  }
 }

@@ -12,9 +12,7 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>ddf.config</groupId>
         <artifactId>config</artifactId>
@@ -22,34 +20,30 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <name>DDF :: Config :: Service</name>
-    <artifactId>config-service</artifactId>
+    <name>DDF :: Config :: Yaml Reader</name>
+    <artifactId>config-reader-yaml</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>ddf.config</groupId>-->
+            <!--<artifactId>config-api</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.fileinstall</artifactId>
+            <groupId>ddf.config</groupId>
+            <artifactId>config-model-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.config</groupId>
-            <artifactId>config-api</artifactId>
+            <artifactId>config-reader-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>${commons-collections4.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.config</groupId>
-            <artifactId>config-reader-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -59,18 +53,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <!--remove -->
-        <dependency>
-            <groupId>ddf.config</groupId>
-            <artifactId>config-model-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.config</groupId>
-            <artifactId>config-model-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -83,7 +65,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.codice.ddf.config.service.eventing.impl</Export-Package>
+                        <Embed-Dependency>
+                            snakeyaml
+                        </Embed-Dependency>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

@@ -39,6 +39,8 @@
         <module>config-reader-yaml</module>
         <module>config-service</module>
         <module>config-app</module>
+        <module>config-model-api</module>
+        <module>config-model-impl</module>
     </modules>
 
     <build>

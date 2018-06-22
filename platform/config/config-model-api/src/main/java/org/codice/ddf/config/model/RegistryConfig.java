@@ -11,19 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.config;
+package org.codice.ddf.config.model;
 
-public class SchemaMimeTypeConfigImpl extends MimeTypeConfigImpl implements SchemaMimeTypeConfig {
-  private final String schema;
+import java.net.URL;
+import org.codice.ddf.config.ConfigGroup;
+import org.codice.ddf.config.ConfigType;
 
-  public SchemaMimeTypeConfigImpl(
-      String id, String name, int priority, String schema, String... extsToMimes) {
-    super(id, name, priority, extsToMimes);
-    this.schema = schema;
-  }
+@ConfigType
+public interface RegistryConfig extends ConfigGroup {
 
-  @Override
-  public String getSchema() {
-    return null;
-  }
+  String getName();
+
+  URL getUrl();
+
+  boolean getPush();
+
+  boolean getPull();
+
+  boolean getPublish();
 }
