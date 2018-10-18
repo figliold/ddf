@@ -31,7 +31,6 @@ import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 import java.io.IOException;
-import java.util.Map;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
@@ -40,18 +39,6 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 
 public class CatalogTestCommons {
-
-  private static final String GEOJSON_NEAR_METACARD = "GeoJson near";
-
-  private static final String GEOJSON_FAR_METACARD = "GeoJson far";
-
-  private static final String PLAINXML_NEAR_METACARD = "PlainXml near";
-
-  private static final String PLAINXML_FAR_METACARD = "PlainXml far";
-
-  private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
-
-  private static final String CSW_METACARD = "CswRecord.xml";
 
   private CatalogTestCommons() {}
 
@@ -63,15 +50,7 @@ public class CatalogTestCommons {
    * @return id of ingested metacard
    */
   public static String ingest(String data, String mimeType) {
-
-    return given()
-        .body(data)
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
-        .expect()
-        .statusCode(HttpStatus.SC_CREATED)
-        .when()
-        .post(REST_PATH.getUrl())
-        .getHeader("id");
+    return ingest(data, mimeType, HttpStatus.SC_CREATED);
   }
 
   /**
@@ -84,7 +63,7 @@ public class CatalogTestCommons {
    */
   public static String ingest(String data, String mimeType, boolean checkResponse) {
     if (checkResponse) {
-      return ingest(data, mimeType);
+      return ingest(data, mimeType, HttpStatus.SC_CREATED);
     } else {
       return given()
           .body(data)
@@ -121,7 +100,7 @@ public class CatalogTestCommons {
    * @return metacard id
    */
   public static String ingestXmlFromResourceAndWait(String resourceName) {
-    String content = getFileContent(resourceName);
+    String contents = getFileContent(resourceName);
     String[] id = new String[1];
     // ingest might not succeed the first time due to the async nature of some configurations
     // Will try several times before considering it failed.
@@ -132,7 +111,7 @@ public class CatalogTestCommons {
         .ignoreExceptions()
         .until(
             () -> {
-              id[0] = ingest(content, "text/xml", true);
+              id[0] = ingest(contents, "text/xml", true);
               return true;
             });
     with()
@@ -153,7 +132,7 @@ public class CatalogTestCommons {
    * @param id The metacard id to look up
    * @return returns true if the metacard is in the catalog, false otherwise.
    */
-  public static boolean doesMetacardExist(String id) {
+  private static boolean doesMetacardExist(String id) {
     try {
       String query =
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
@@ -175,30 +154,6 @@ public class CatalogTestCommons {
     return ingest(json, "application/json");
   }
 
-  public static Map<String, String> ingestMetacards(Map<String, String> metacardsIds) {
-    // ingest csw
-    String cswRecordId =
-        ingestCswRecord(getFileContent(CSW_RESOURCE_ROOT + "csw/record/CswRecord.xml"));
-    metacardsIds.put(CSW_METACARD, cswRecordId);
-
-    // ingest xml
-    String plainXmlNearId =
-        ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"), MediaType.TEXT_XML);
-    String plainXmlFarId =
-        ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlFar.xml"), MediaType.TEXT_XML);
-    metacardsIds.put(PLAINXML_NEAR_METACARD, plainXmlNearId);
-    metacardsIds.put(PLAINXML_FAR_METACARD, plainXmlFarId);
-
-    // ingest json
-    String geoJsonNearId =
-        ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonNear.json"));
-    String geoJsonFarId = ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonFar.json"));
-    metacardsIds.put(GEOJSON_NEAR_METACARD, geoJsonNearId);
-    metacardsIds.put(GEOJSON_FAR_METACARD, geoJsonFarId);
-
-    return metacardsIds;
-  }
-
   public static String ingestCswRecord(String cswRecord) {
     String transactionRequest = getCswInsertRequest("csw:Record", cswRecord);
 
@@ -218,6 +173,29 @@ public class CatalogTestCommons {
         .xmlPath()
         .get("Transaction.InsertResult.BriefRecord.identifier")
         .toString();
+  }
+
+  /**
+   * @param id - id of metacard to query
+   * @param transformer - transformer to use for response
+   */
+  public static String query(String id, String transformer) {
+    return query(id, transformer, HttpStatus.SC_OK);
+  }
+
+  /**
+   * @param id - id of metacard to query
+   * @param transformer - transformer to use for response
+   * @param expectedStatusCode - expected status code to check for
+   */
+  public static String query(String id, String transformer, int expectedStatusCode) {
+    ValidatableResponse response =
+        given()
+            .get(REST_PATH.getUrl() + id + "?transform=" + transformer)
+            .then()
+            .assertThat()
+            .statusCode(equalTo(expectedStatusCode));
+    return response.extract().body().asString();
   }
 
   /**
