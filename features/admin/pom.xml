@@ -27,92 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.metrics.reporting</groupId>
-            <artifactId>metrics-reporting</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.metrics.interceptor</groupId>
-            <artifactId>metrics-interceptor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>landing-page</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-scheduler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration-endpoint</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-commands</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!--feature dependencies-->
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>branding</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>cxf</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>security</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>solr</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>migration</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <!--end feature dependencies-->
-
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>
             <version>${project.version}</version>
@@ -132,11 +46,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>test-utilities</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.thirdparty</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
